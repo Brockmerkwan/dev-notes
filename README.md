@@ -1,3 +1,14 @@
+<!-- GLYPHWAVE SIGILS -->
+<p align="center">
+  <img alt="Sigil: Arc" src="https://img.shields.io/badge/⟟_arcana-synced-00FFC8?style=for-the-badge&labelColor=0A0A0F">
+  <img alt="Sigil: Ritual" src="https://img.shields.io/badge/⟊_ritual-backup_bound-FF2E97?style=for-the-badge&labelColor=0A0A0F">
+  <img alt="Sigil: Circuit" src="https://img.shields.io/badge/⌁_circuit-docker_up-7C3AED?style=for-the-badge&labelColor=0A0A0F&logo=docker&logoColor=7C3AED">
+  <img alt="Sigil: Veil" src="https://img.shields.io/badge/⌬_veil-tailscale_mesh-00F0FF?style=for-the-badge&labelColor=0A0A0F&logo=tailscale&logoColor=00F0FF">
+  <img alt="Sigil: Sweep" src="https://img.shields.io/badge/✧_sweep-multi_repo-39FF14?style=for-the-badge&labelColor=0A0A0F">
+  <img alt="Sigil: Oath" src="https://img.shields.io/badge/✠_oath-lesson_I_complete-BC13FE?style=for-the-badge&labelColor=0A0A0F">
+</p>
+
+
 # 🧰 Brock's DevTools Suite  
 _A lightweight automation toolkit for syncing, backing up, and maintaining Git repositories._
 
