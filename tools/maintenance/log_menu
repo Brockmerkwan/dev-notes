@@ -1,0 +1,28 @@
+#!/bin/zsh
+set -euo pipefail
+SENTINEL="${HOME}/Downloads/log_sentinel.sh"
+OUT="${HOME}/Projects/devnotes/backups"
+TROUBLE="${HOME}/Projects/devnotes/docs/troubleshooting"
+DAILY="${HOME}/Projects/devnotes/daily_logs"
+mkdir -p "$OUT"
+
+while true; do
+  clear
+  echo "=== Log Menu ==="
+  echo "1) Rotate Troubleshooting (md files)"
+  echo "2) Rotate Daily logs (md files)"
+  echo "3) Rotate ANY folder (prompt)"
+  echo "4) Rotate ONE file"
+  echo "5) List archives"
+  echo "6) Exit"
+  read "pick?Select: "
+  case "$pick" in
+    1) "$SENTINEL" rotate --path "$TROUBLE" --pattern '*.md' --keep 7 --outdir "$OUT" --prefix devnotes --compress gz; read -k "?Press any key";;
+    2) "$SENTINEL" rotate --path "$DAILY"   --pattern '*.md' --keep 7 --outdir "$OUT" --prefix daily   --compress gz; read -k "?Press any key";;
+    3) read "folder?Folder path: "; read "glob?Glob (e.g. *.log) [*.log]: "; glob="${glob:-*.log}"; read "pref?Prefix [custom]: "; pref="${pref:-custom}"; "$SENTINEL" rotate --path "$folder" --pattern "$glob" --keep 7 --outdir "$OUT" --prefix "$pref" --compress gz; read -k "?Press any key";;
+    4) read "file?File path: "; read "pref?Prefix [single]: "; pref="${pref:-single}"; "$SENTINEL" rotate --path "$file" --keep 7 --outdir "$OUT" --prefix "$pref" --compress gz; read -k "?Press any key";;
+    5) ls -lh "$OUT"; read -k "?Press any key";;
+    6) exit 0;;
+    *) echo "Invalid"; sleep 1;;
+  esac
+done

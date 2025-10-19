@@ -1,0 +1,120 @@
+#!/bin/zsh
+set -euo pipefail
+
+DOWNLOADS="$HOME/Downloads"
+ARCHIVE_DIR="${DOWNLOADS}/_Archive"
+BUNDLES_DIR="${ARCHIVE_DIR}/Bundles"
+DOCS_DIR="${ARCHIVE_DIR}/Docs"
+IMAGES_DIR="${ARCHIVE_DIR}/Images"
+DISKIMG_DIR="${ARCHIVE_DIR}/DiskImages"
+DEVPKG_DIR="${ARCHIVE_DIR}/DevPacks"
+FOLDERS_DIR="${ARCHIVE_DIR}/Folders"
+MISC_DIR="${ARCHIVE_DIR}/Misc"
+LOG="${ARCHIVE_DIR}/_tidy_weekly.log"
+
+# --- toggles ---
+RELOCATE_SCRIPTS=1       # move loose *.sh (older than N days) into DevPacks
+RELOCATE_AGE_DAYS=2
+FOLDER_SWEEP=1           # move leftover top-level directories into Folders/YYYY-MM
+FOLDER_MIN_MB=1          # threshold for moving directories (MB) — lowered to 1 to catch your packs
+# -----------------
+
+mkdir -p "$BUNDLES_DIR" "$DOCS_DIR" "$IMAGES_DIR" "$DISKIMG_DIR" "$DEVPKG_DIR" "$FOLDERS_DIR" "$MISC_DIR"
+
+ts(){ date '+%Y-%m-%d %H:%M:%S'; }
+log(){ echo "[$(ts)] $*" >> "$LOG"; }
+ymon(){ date -r "$1" '+%Y-%m'; }
+
+move_to(){
+  local src="$1"; local dest_root="$2"
+  [[ -n "$src" && -e "$src" ]] || return 0
+  local dest="${dest_root}/$(date -r "$src" '+%Y-%m')"
+  mkdir -p "$dest"
+  mv -n "$src" "$dest/" 2>/dev/null || mv "$src" "$dest/"
+  log "moved: $(basename "$src") -> ${dest}"
+}
+
+organize_types(){
+  log "start organize_types"
+  for f in "$DOWNLOADS"/*.zip(N) "$DOWNLOADS"/*.tar.gz(N) "$DOWNLOADS"/*.tgz(N) "$DOWNLOADS"/*.tar.zst(N); do [[ -e "$f" ]] && move_to "$f" "$BUNDLES_DIR"; done
+  for f in "$DOWNLOADS"/*.dmg(N) "$DOWNLOADS"/*.pkg(N); do [[ -e "$f" ]] && move_to "$f" "$DISKIMG_DIR"; done
+  for f in "$DOWNLOADS"/*.pdf(N) "$DOWNLOADS"/*.md(N) "$DOWNLOADS"/*.txt(N) "$DOWNLOADS"/*.rtf(N); do [[ -e "$f" ]] && move_to "$f" "$DOCS_DIR"; done
+  for f in "$DOWNLOADS"/*.(png|jpg|jpeg|webp)(N); do [[ -e "$f" ]] && move_to "$f" "$IMAGES_DIR"; done
+  # your dev pack patterns
+  for f in "$DOWNLOADS"/*devnotes*.*(N) "$DOWNLOADS"/*devtools*.*(N) "$DOWNLOADS"/*levelup*.*(N) "$DOWNLOADS"/*pack*.zip(N); do [[ -e "$f" ]] && move_to "$f" "$DEVPKG_DIR"; done
+  log "end organize_types"
+}
+
+relocate_loose_scripts(){
+  [[ "$RELOCATE_SCRIPTS" -eq 1 ]] || return 0
+  log "start relocate_scripts (*.sh, older than ${RELOCATE_AGE_DAYS}d)"
+  local -a exclude=(
+    "$DOWNLOADS/downloads_tidy.sh"
+    "$DOWNLOADS/downloads_tidy_weekly.sh"
+    "$DOWNLOADS/log_sentinel.sh"
+    "$DOWNLOADS/log_sentinel_plus.sh"
+    "$DOWNLOADS/log_menu.sh"
+    "$DOWNLOADS/daily_rotate.sh"
+  )
+  local found
+  found=(${(f)$(
+    find "$DOWNLOADS" -maxdepth 1 -type f -name '*.sh' -mtime +$RELOCATE_AGE_DAYS 2>/dev/null
+  )})
+  for f in "${found[@]:-}"; do
+    local skip=0; for ex in "${exclude[@]}"; do [[ "$f" == "$ex" ]] && { skip=1; break; }; done
+    [[ $skip -eq 1 ]] && continue
+    move_to "$f" "$DEVPKG_DIR"
+  done
+  log "end relocate_scripts"
+}
+
+folder_sweep(){
+  [[ "$FOLDER_SWEEP" -eq 1 ]] || return 0
+  log "start folder_sweep (>= ${FOLDER_MIN_MB} MB)"
+  for d in "$DOWNLOADS"/*(/N); do
+    local base="$(basename "$d")"
+    [[ "$base" == "_Archive" ]] && continue
+    [[ "$base" == .* ]] && continue
+    # prefer to always move these known pack dirs even if small
+    if [[ "$base" == automation_suite || "$base" == new_workflow_pack || "$base" == devnotesdoc || "$base" == devnotes_levelup_pack || "$base" == devnotes_cli_suite_* ]]; then
+      move_to "$d" "$FOLDERS_DIR"; continue
+    fi
+    # otherwise, check size threshold
+    local mb; mb=$(du -sm "$d" 2>/dev/null | awk '{print $1}')
+    [[ -z "$mb" || "$mb" -lt "$FOLDER_MIN_MB" ]] && continue
+    move_to "$d" "$FOLDERS_DIR"
+  done
+  log "end folder_sweep"
+}
+
+remove_empty_dirs(){
+  log "start remove_empty_dirs"
+  local found=0
+  while IFS= read -r d; do
+    [[ -n "$d" && -d "$d" ]] || continue
+    rmdir "$d" && { log "rmdir: $(basename "$d")"; found=1; } || true
+  done < <(find "$DOWNLOADS" -mindepth 1 -maxdepth 1 -type d -empty 2>/dev/null)
+  [[ $found -eq 0 ]] && log "no empty dirs"
+  log "end remove_empty_dirs"
+}
+
+notify_mac(){
+  local title="Tidy 1.2 Weekly"
+  local body="$1"
+  if command -v osascript >/dev/null 2>&1; then
+    /usr/bin/osascript -e "display notification \"$body\" with title \"$title\" subtitle \"Downloads cleaned\""
+  elif command -v terminal-notifier >/dev/null 2>&1; then
+    terminal-notifier -title "$title" -subtitle "Downloads cleaned" -message "$body"
+  fi
+}
+
+log "== tidy_weekly start =="
+organize_types
+relocate_loose_scripts
+folder_sweep
+remove_empty_dirs
+log "== tidy_weekly done =="
+
+summary="$(grep 'moved:' "$LOG" | tail -n 5 | sed 's/.*moved: //g' | tr '\n' ' ')"
+[[ -z "$summary" ]] && summary="No changes"
+notify_mac "$summary"

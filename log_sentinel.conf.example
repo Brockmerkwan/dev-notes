@@ -1,0 +1,9 @@
+# Example config for Log Sentinel PLUS
+DEVROOT=~/Projects/devnotes
+OUTDIR=~/Projects/devnotes/backups
+TROUBLE_DIR=~/Projects/devnotes/docs/troubleshooting
+DAILY_DIR=~/Projects/devnotes/daily_logs
+KEEP=7
+PREFIX_DEV=devnotes
+PREFIX_DAILY=daily
+COMPRESS=gz

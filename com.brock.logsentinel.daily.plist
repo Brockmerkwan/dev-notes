@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.brock.logsentinel.daily</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/home/sandbox/Downloads/daily_rotate.sh</string>
+  </array>
+
+  <!-- Run at 18:00 (6 PM) local time every day -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>18</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- Ensure it also runs once after load -->
+  <key>RunAtLoad</key>
+  <true/>
+
+  <!-- Keep logs in user's backups folder -->
+  <key>StandardOutPath</key>
+  <string>/home/sandbox/Projects/devnotes/backups/launchd_stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/home/sandbox/Projects/devnotes/backups/launchd_stderr.log</string>
+
+  <!-- Environment -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>/home/sandbox</string>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+</dict>
+</plist>
