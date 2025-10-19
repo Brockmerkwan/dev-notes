@@ -1,0 +1,18 @@
+Host: brocks-Mac-mini.local
+Time (UTC): Sat Oct 18 23:49:39 UTC 2025
+
+Quick Indicators (manual review)
+--------------------------------
+World-writable files:     7400
+n/a
+World-writable directories:     1458
+n/a
+SUID files:       24
+n/a
+Listening sockets:      331
+Docker containers running:        0
+0
+
+Latest audit file: /Users/brockmerkwan/SysAudits/brocks-Mac-mini.local_2025-10-18_18-47-19.txt
+
+NOTE: This summary is a quick indicator only. Inspect full audit at /Users/brockmerkwan/SysAudits/brocks-Mac-mini.local_2025-10-18_18-47-19.txt for details.
