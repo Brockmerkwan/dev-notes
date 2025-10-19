@@ -1,0 +1,7 @@
+site_name: Dev Notes
+repo_url: https://github.com/Brockmerkwan/dev-notes
+theme:
+  name: mkdocs
+nav:
+  - Home: index.md
+docs_dir: docs
