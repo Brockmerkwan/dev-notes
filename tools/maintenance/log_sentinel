@@ -1,152 +1,29 @@
-#!/usr/bin/env bash
-# Log Sentinel — simple, safe log rotation & archiving
-# Usage:
-#   log_sentinel.sh rotate --path <file|dir> [--pattern '*.log'] [--keep 7] [--outdir ./archives]
-#                          [--prefix app] [--compress gz|zst|none] [--dry-run] [--no-lock]
-# Example:
-#   ./log_sentinel.sh rotate --path ./logs --pattern '*.log' --keep 7 --outdir ./archives --prefix myapp
-#   ./log_sentinel.sh rotate --path ./app.log --keep 5 --compress gz
-#
+#!/bin/zsh
 set -euo pipefail
+setopt NULL_GLOB
 
-VERSION="1.0.0"
-
-_die(){ echo "❌ $*" >&2; exit 1; }
-_note(){ echo "→ $*"; }
-_dbg(){ [[ "${DEBUG:-0}" == "1" ]] && echo "… $*" >&2 || true; }
-
-command="${1:-}"; shift || true
-[[ -z "${command:-}" ]] && { echo "Log Sentinel v$VERSION
-Commands:
-  rotate  Archive logs from a file or a directory (with pattern).
-Options (for rotate):
-  --path <file|dir>        Target file or directory of logs.
-  --pattern <glob>         Only with directory; e.g. '*.log' (default: '*.log').
-  --keep <N>               Keep last N archives (default: 7).
-  --outdir <dir>           Where to write archives (default: ./archives).
-  --prefix <name>          Archive prefix (default: logs).
-  --compress <gz|zst|none> Compression format (default: gz).
-  --dry-run                Show actions without changing files.
-  --no-lock                Disable single-instance lock.
-Env:
-  DEBUG=1                  Verbose internals.
-"; exit 0; }
-
-# Defaults
-PATH_ARG=""; PATTERN="*.log"; KEEP=7; OUTDIR="./archives"; PREFIX="logs"; COMPRESS="gz"; DRYRUN=0; DO_LOCK=1
-
-# Parse flags
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --path) PATH_ARG="${2:-}"; shift 2;;
-    --pattern) PATTERN="${2:-}"; shift 2;;
-    --keep) KEEP="${2:-}"; shift 2;;
-    --outdir) OUTDIR="${2:-}"; shift 2;;
-    --prefix) PREFIX="${2:-}"; shift 2;;
-    --compress) COMPRESS="${2:-}"; shift 2;;
-    --dry-run) DRYRUN=1; shift;;
-    --no-lock) DO_LOCK=0; shift;;
-    *) _die "Unknown flag: $1";;
-  esac
-done
-
-[[ "${command}" != "rotate" ]] && _die "Unknown command: ${command}"
-
-[[ -n "${PATH_ARG}" ]] || _die "--path is required"
-[[ -e "${PATH_ARG}" ]] || _die "--path '${PATH_ARG}' does not exist"
-[[ "${KEEP}" =~ ^[0-9]+$ ]] || _die "--keep must be an integer"
-[[ "${COMPRESS}" =~ ^(gz|zst|none)$ ]] || _die "--compress must be gz|zst|none"
-
-mkdir -p "${OUTDIR}"
-
-# Optional single-instance lock to prevent concurrent rotations
-LOCK="${OUTDIR}/.log_sentinel.lock"
-cleanup_lock(){ [[ -f "${LOCK}" ]] && rm -f "${LOCK}"; }
-if [[ "${DO_LOCK}" -eq 1 ]]; then
-  trap cleanup_lock EXIT INT TERM
-  if ! ( set -o noclobber; echo $$ > "${LOCK}" ) 2>/dev/null; then
-    pid="$(cat "${LOCK}" 2>/dev/null || true)"
-    _die "Another instance is running (pid=${pid:-?}). Use --no-lock to override."
-  fi
+LOCK="/tmp/log_sentinel.lock"
+if ! mkdir "$LOCK" 2>/dev/null; then
+  # another instance is running
+  exit 0
 fi
+trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
 
-# Timestamp
-ts="$(date '+%Y%m%d_%H%M%S')"
+SRC_DIR="$HOME/Projects/devnotes"
+OUT_DIR="$HOME/Projects/devnotes/backups"
+LOG="$OUT_DIR/daily_rotate.log"
+mkdir -p "$OUT_DIR"
 
-# Choose compressor
-compress_ext=".tar"
-compress_cmd=("tar" "-cf")
-case "${COMPRESS}" in
-  gz)  compress_ext=".tar.gz";  compress_cmd=("tar" "-czf");;
-  zst) compress_ext=".tar.zst"; compress_cmd=("tar" "--zstd" "-cf");;
-  none) compress_ext=".tar"; compress_cmd=("tar" "-cf");;
-esac
-
-archive="${OUTDIR}/${PREFIX}_${ts}${compress_ext}"
-
-# Dry-run helper
-run(){
-  if [[ "${DRYRUN}" -eq 1 ]]; then
-    echo "[dry-run] $*"
-  else
-    eval "$@"
-  fi
+ts(){ date '+%Y-%m-%d %H:%M:%S'; }
+pack_if_any() {
+  local out="$1"; shift
+  local files=("$@")
+  (( ${#files} )) && tar -czf "$out" -C "$SRC_DIR" "${files[@]/#${SRC_DIR}\//}" || true
 }
 
-# Build file list
-declare -a files
-if [[ -f "${PATH_ARG}" ]]; then
-  files+=("${PATH_ARG}")
-else
-  # directory mode
-  while IFS= read -r -d '' f; do
-    files+=("$f")
-  done < <(find "${PATH_ARG}" -type f -name "${PATTERN}" -print0 | sort -z)
-fi
-
-[[ ${#files[@]} -gt 0 ]] || _die "No files matched."
-
-# Verify write
-: > "${OUTDIR}/.write_test" && rm -f "${OUTDIR}/.write_test" || _die "Cannot write to ${OUTDIR}"
-
-# Show plan
-_note "Rotating ${#files[@]} file(s) → ${archive}"
-for f in "${files[@]}"; do _dbg "will include: $f"; done
-
-# Create archive
-# Use tar relative paths to keep archives clean
-common_dir="."
-if [[ -d "${PATH_ARG}" ]]; then
-  pushd "${PATH_ARG}" >/dev/null
-  rels=()
-  for f in "${files[@]}"; do rels+=("${f#${PATH_ARG}/}"); done
-  cmd="${compress_cmd[*]} \"${archive}\" ${rels[@]@Q}"
-  run "${cmd}"
-  popd >/dev/null
-else
-  # single file
-  dir="$(dirname "${files[0]}")"; base="$(basename "${files[0]}")"
-  pushd "${dir}" >/dev/null
-  cmd="${compress_cmd[*]} \"${archive}\" ${base@Q}"
-  run "${cmd}"
-  popd >/dev/null
-fi
-
-# Optionally truncate original logs after archiving (file mode only)
-if [[ -f "${PATH_ARG}" ]]; then
-  _note "Truncating original file: ${PATH_ARG}"
-  run ": > ${PATH_ARG@Q}"
-fi
-
-# Retention policy (keep newest N archives)
-_note "Retention: keep last ${KEEP} archive(s)"
-existing=( $(ls -1t "${OUTDIR}/${PREFIX}_"*"${compress_ext}" 2>/dev/null || true) )
-if [[ ${#existing[@]} -gt ${KEEP} ]]; then
-  prune=( "${existing[@]:${KEEP}}" )
-  for p in "${prune[@]}"; do
-    _note "Pruning old archive: $p"
-    run "rm -f ${p@Q}"
-  done
-fi
-
-_note "Done."
+echo "[$(ts)] start rotation" >> "$LOG"
+pack_if_any "$OUT_DIR/devnotes_$(date +%Y%m%d_%H%M%S).tar.gz" "$SRC_DIR"/daily_*
+pack_if_any "$OUT_DIR/daily_$(date +%Y%m%d_%H%M%S).tar.gz"    "$SRC_DIR"/notes_*
+# keep last 7
+ls -1t "$OUT_DIR"/*.tar.gz 2>/dev/null | tail -n +8 | xargs -I{} rm -f "{}" 2>/dev/null || true
+echo "[$(ts)] done" >> "$LOG"
