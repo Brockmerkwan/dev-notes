@@ -1,0 +1,12 @@
+Host: brocks-Mac-mini.local
+Time (UTC): Sun Oct 19 00:57:11 UTC 2025
+
+Quick Indicators
+----------------
+World-writable files:     7898
+0
+World-writable dirs:      1496
+0
+SUID files:                 24
+0
+Listening sockets:         582
