@@ -13,15 +13,14 @@
 	<string>com.brock.archive.compactor.monthly</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/bin/zsh</string>
 		<string>/Users/brockmerkwan/Projects/devnotes/tools/maintenance/archive_compactor.sh</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/Users/brockmerkwan/Documents/Download_Archive/_compactor_stderr.log</string>
+	<string>/Users/brockmerkwan/Library/Application Support/Download_Archive/_monthly_stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/brockmerkwan/Documents/Download_Archive/_compactor_stdout.log</string>
+	<string>/Users/brockmerkwan/Library/Application Support/Download_Archive/_monthly_stdout.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Day</key>

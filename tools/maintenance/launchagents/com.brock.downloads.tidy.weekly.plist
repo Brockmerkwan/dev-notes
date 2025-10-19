@@ -13,15 +13,14 @@
 	<string>com.brock.downloads.tidy.weekly</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/bin/zsh</string>
 		<string>/usr/local/bin/downloads_tidy_weekly</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/Users/brockmerkwan/Documents/Download_Archive/_tidy_stderr.log</string>
+	<string>/Users/brockmerkwan/Library/Application Support/Download_Archive/_weekly_stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/brockmerkwan/Documents/Download_Archive/_tidy_stdout.log</string>
+	<string>/Users/brockmerkwan/Library/Application Support/Download_Archive/_weekly_stdout.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
