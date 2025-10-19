@@ -74,7 +74,8 @@ async function api(path, opts={}) {
   if(token) headers['X-Auth'] = token;
   const r = await fetch(path, Object.assign({headers}, opts));
   let j = {};
-  try{ j = await r.json(); }catch{ j = { ok:false, error:'bad json', rc:996 }; }
+  try{ j = await r.json(); }
+  catch(e){ const t=await r.text(); j = { ok:false, error: (t||'bad json'), rc:996 }; }
   if(!j.ok && j.error==='unauthorized'){
     S('authBanner').style.display = 'block';
   }
@@ -117,7 +118,9 @@ function shortTail(t, n=3){
 async function rotateToken(){
   try{
     const r=await fetch('/api/rotate_token',{method:'POST'});
-    const j=await r.json();
+    let j; let t;
+    try{ j=await r.json(); }
+    catch(e){ t=await r.text(); j={ok:false,error:(t||'non-JSON response'),rc:995}; }
     if(j.ok){
       localStorage.setItem('dash_token', j.token);
       S('tok').value=j.token;
