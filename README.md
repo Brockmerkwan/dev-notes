@@ -1,9 +1,7 @@
 # 🧠 **DevNotes: Living README**  
-> _Neon-Terminal Edition – automated, adaptive, and always evolving._  
-_Last updated: 2025-10-18 19:31:01_
-_Current commit:_ `1c9e9c3`
-
----
+> _Neon‑Terminal Edition – automated, adaptive, and always evolving._  
+_Last updated: 2025-10-19 00:50:09_  
+_Current commit:_ `$(git rev-parse --short HEAD)`  
 
 <p align="center">
   <img src="https://img.shields.io/badge/SYSTEM-ONLINE-00FFC8?style=for-the-badge&labelColor=0A0A0F&logo=github&logoColor=00FFC8">
@@ -13,10 +11,11 @@ _Current commit:_ `1c9e9c3`
   <img src="https://img.shields.io/badge/STATUS-STABLE-00F0FF?style=for-the-badge&labelColor=0A0A0F">
 </p>
 
+[![Build Dev Notes](https://github.com/Brockmerkwan/dev-notes/actions/workflows/build.yml/badge.svg)](https://github.com/Brockmerkwan/dev-notes/actions/workflows/build.yml)
+
 ---
 
 ## ⚙️ System Intelligence
-
 <!--AUTO:STATUS_START-->
 (Automation Suite summary auto-injected here.)
 <!--AUTO:STATUS_END-->
@@ -24,7 +23,6 @@ _Current commit:_ `1c9e9c3`
 ---
 
 ## 📘 Learning Progress
-
 <!--AUTO:LESSON_LOG_START-->
 - ✅ Lesson 1 – Git & Repo Foundations (2025-10-17)
 - ✅ Lesson 2 – Automation Suite & System Audits (2025-10-18)
@@ -34,7 +32,6 @@ _Current commit:_ `1c9e9c3`
 ---
 
 ## 🧾 Playbooks & Manuals
-
 <!--AUTO:PLAYBOOKS_START-->
 - [Automation Suite System Status](docs/README_Automation_Suite_Status.md)
 - [Don’t Panic Dev Error Manual](docs/Dont_Panic_Dev_Error_Manual.md)
@@ -43,7 +40,6 @@ _Current commit:_ `1c9e9c3`
 ---
 
 ## 🚀 Roadmap
-
 | Phase | Focus | Status |
 |-------|--------|--------|
 | 1 | Git, Repo Automation | ✅ Complete |
@@ -55,7 +51,6 @@ _Current commit:_ `1c9e9c3`
 ---
 
 ## 🔧 Update & Maintenance
-
 Run this one-liner anytime to refresh your living README:
 ```bash
 bash update_readme.sh
@@ -70,9 +65,6 @@ This script updates:
 ---
 
 ## 🩵 Philosophy
-> “Automate what you can, learn what you must, and document everything that keeps the fire burning.”  
-> — Brock Merkwan, 2025
+> “Automate what you can, learn what you must, and document everything that keeps the fire burning.” – Brock Merkwan
 
----
-
-<p align="center"><sub>💾 README.LIVE v1.0 — maintained by your Automation Suite</sub></p>
+<p align="center"><sub>💾 README.LIVE v1.1 — maintained by your Automation Suite</sub></p>
