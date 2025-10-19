@@ -15,7 +15,7 @@ fi
 
 # B) Streaming probe (should stream lines)
 REQ='{"model":"mistral:latest","messages":[{"role":"user","content":"say hi"}],"stream":true}'
-printf '%s' "$REQ" | curl -sN http://localhost:11434/api/chat -H 'Content-Type: application/json' | head -n 3 | sed 's/^/[stream] /' | tee -a "$LOG" >/dev/null || true
+printf '%s' "$REQ" | curl -sN -X POST http://localhost:11434/api/chat -H 'Content-Type: application/json' | head -n 3 | sed 's/^/[stream] /' | tee -a "$LOG" >/dev/null || true
 
 # C) Host tools presence (if installed)
 for b in /usr/local/bin/devask_h /usr/local/bin/devteach_h /usr/local/bin/devnote_h; do
