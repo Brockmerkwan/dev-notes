@@ -188,3 +188,11 @@ launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compact
 - Adds `tools/devcli/devcli_selfcheck.sh` (API, stream, tools, repo write)
 - Daily LaunchAgent: `com.brock.devcli.selfcheck.daily` (19:15 local)
 - Log: `backups/devcli_selfcheck.log`
+
+### Lesson Complete — Maintenance & Selfcheck (Oct 19, 2025)
+- LaunchAgents: daily log rotation, weekly downloads tidy, monthly archive compactor
+- Paths unified to TCC-free archive under `~/Library/Application Support/Download_Archive` (Downloads symlink)
+- Lock wrappers prevent double-runs; logs tail clean
+- Daily README snapshot append
+- DevCLI v1.5 selfcheck (API, streaming, tool presence, repo write) — **validated**
+- Tags: `v1.2-maint-suite`, `v1.5-reliquary`
