@@ -1,116 +1,78 @@
-<!-- GLYPHWAVE SIGILS -->
+# 🧠 **DevNotes: Living README**  
+> _Neon-Terminal Edition – automated, adaptive, and always evolving._  
+_Last updated: 2025-10-18 19:31:01_
+_Current commit:_ `1c9e9c3`
+
+---
+
 <p align="center">
-  <img alt="Sigil: Arc" src="https://img.shields.io/badge/⟟_arcana-synced-00FFC8?style=for-the-badge&labelColor=0A0A0F">
-  <img alt="Sigil: Ritual" src="https://img.shields.io/badge/⟊_ritual-backup_bound-FF2E97?style=for-the-badge&labelColor=0A0A0F">
-  <img alt="Sigil: Circuit" src="https://img.shields.io/badge/⌁_circuit-docker_up-7C3AED?style=for-the-badge&labelColor=0A0A0F&logo=docker&logoColor=7C3AED">
-  <img alt="Sigil: Veil" src="https://img.shields.io/badge/⌬_veil-tailscale_mesh-00F0FF?style=for-the-badge&labelColor=0A0A0F&logo=tailscale&logoColor=00F0FF">
-  <img alt="Sigil: Sweep" src="https://img.shields.io/badge/✧_sweep-multi_repo-39FF14?style=for-the-badge&labelColor=0A0A0F">
-  <img alt="Sigil: Oath" src="https://img.shields.io/badge/✠_oath-lesson_I_complete-BC13FE?style=for-the-badge&labelColor=0A0A0F">
+  <img src="https://img.shields.io/badge/SYSTEM-ONLINE-00FFC8?style=for-the-badge&labelColor=0A0A0F&logo=github&logoColor=00FFC8">
+  <img src="https://img.shields.io/badge/AUTOMATION-SUITE_ACTIVE-7C3AED?style=for-the-badge&labelColor=0A0A0F">
+  <img src="https://img.shields.io/badge/DEFENSE-NETRUNNER_OK-39FF14?style=for-the-badge&labelColor=0A0A0F">
+  <img src="https://img.shields.io/badge/LESSON_TRACK-LEVEL_II-FF2E97?style=for-the-badge&labelColor=0A0A0F">
+  <img src="https://img.shields.io/badge/STATUS-STABLE-00F0FF?style=for-the-badge&labelColor=0A0A0F">
 </p>
 
+---
 
-# 🧰 Brock's DevTools Suite  
-_A lightweight automation toolkit for syncing, backing up, and maintaining Git repositories._
+## ⚙️ System Intelligence
+
+<!--AUTO:STATUS_START-->
+(Automation Suite summary auto-injected here.)
+<!--AUTO:STATUS_END-->
 
 ---
 
-## 🚀 Overview
-This suite provides a set of simple, reliable shell scripts for everyday DevOps and system maintenance.  
-Designed for **macOS or Linux**, the scripts make it easy to:
-- ✅ Sync any Git repo automatically (pull → add → commit-if-changed → push)
-- 🗄️ Back up repos to a central or external location
-- 🌐 Batch process all repos on your system (Desktop, Projects, etc.)
+## 📘 Learning Progress
+
+<!--AUTO:LESSON_LOG_START-->
+- ✅ Lesson 1 – Git & Repo Foundations (2025-10-17)
+- ✅ Lesson 2 – Automation Suite & System Audits (2025-10-18)
+- 🔜 Lesson 3 – Network Recon Foundations
+<!--AUTO:LESSON_LOG_END-->
 
 ---
 
-## 📂 Scripts Included
+## 🧾 Playbooks & Manuals
 
-| Script | Purpose |
-|:--|:--|
-| **`repo_sync.sh`** | Pulls latest, stages all changes, commits only if changes exist, and pushes. |
-| **`repo_backup.sh`** | Creates a compressed `.tar.gz` backup of the current repo (excluding `.git`) to `~/DevBackups/<repo>` and keeps only the 10 most recent. |
-| **`repo_all.sh`** | Scans multiple folders (like `~/Desktop`, `~/Projects`) and runs both `repo_sync` + `repo_backup` for each detected repo. |
+<!--AUTO:PLAYBOOKS_START-->
+- [Automation Suite System Status](docs/README_Automation_Suite_Status.md)
+- [Don’t Panic Dev Error Manual](docs/Dont_Panic_Dev_Error_Manual.md)
+<!--AUTO:PLAYBOOKS_END-->
 
 ---
 
-## 🧩 Setup
+## 🚀 Roadmap
 
-### 1. Installation
+| Phase | Focus | Status |
+|-------|--------|--------|
+| 1 | Git, Repo Automation | ✅ Complete |
+| 2 | Defensive/Offensive Audits | ✅ Active |
+| 3 | Discord Bot Integration | 🔜 Next |
+| 4 | RunPod Deployment | ⏳ Pending |
+| 5 | Cloud-Linked Automation & Monitoring | 🧩 Planned |
+
+---
+
+## 🔧 Update & Maintenance
+
+Run this one-liner anytime to refresh your living README:
 ```bash
-mkdir -p ~/scripts
-cp repo_sync.sh repo_backup.sh repo_all.sh ~/scripts/
-chmod +x ~/scripts/repo_*.sh
-echo 'export PATH="$HOME/scripts:$PATH"' >> ~/.zshrc
-source ~/.zshrc
+bash update_readme.sh
 ```
 
-### 2. Optional Aliases
-For faster access:
-```bash
-alias rsyncme='repo_sync.sh'
-alias rbackup='repo_backup.sh'
-alias rall='repo_all.sh'
-```
+This script updates:  
+- Timestamp + commit info  
+- Injects latest system status and lesson progress  
+- Rebuilds Playbooks list automatically  
+- Commits and pushes changes
 
 ---
 
-## 🧪 Usage
-
-### Inside a single repo
-```bash
-cd ~/Desktop/devnotes
-repo_sync.sh
-repo_backup.sh
-```
-
-**Result:**
-- Logs committed automatically with timestamp.
-- Backup stored at `~/DevBackups/devnotes/devnotes_YYYY-MM-DD_HH-MM-SS.tar.gz`
-
-### Across all repos
-```bash
-repo_all.sh
-```
-
-**Default scan locations:**  
-`~/Desktop`, `~/Projects`  
-You can edit the paths at the top of `repo_all.sh` to include others.
+## 🩵 Philosophy
+> “Automate what you can, learn what you must, and document everything that keeps the fire burning.”  
+> — Brock Merkwan, 2025
 
 ---
 
-## 💾 Backup Configuration
-
-You can customize your backup paths:
-```bash
-export CENTRAL_BACKUP_DIR="$HOME/DevBackups"
-export EXTERNAL_BACKUP_DIR="/Volumes/EXT_DRIVE/DevBackups"
-```
-Run `repo_backup.sh` again — it will automatically mirror to your external drive if available.
-
----
-
-## 🛠️ System Requirements
-- macOS or Linux
-- Git installed and configured
-- Zsh or Bash shell
-
----
-
-## 🎯 Lesson Progress
-| Lesson | Description | Status |
-|:--|:--|:--|
-| **Lesson 1** | Applied Automation — Git & Backup Suite | ✅ Complete |
-| **Lesson 2** | System Health & Audit (sys_audit.sh) | ⏳ In Progress |
-| **Lesson 3** | Docker + Remote Ops Automation | 🔒 Locked |
-
----
-
-## 📜 License
-MIT — free to use, modify, and distribute.
-
----
-
-## 👤 Author
-**Brock Merkwan**  
-Automation Engineer • Writer • Builder of creative tools  
-🔗 [GitHub Profile](https://github.com/Brockmerkwan)
+<p align="center"><sub>💾 README.LIVE v1.0 — maintained by your Automation Suite</sub></p>
