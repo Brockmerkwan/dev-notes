@@ -1,6 +1,6 @@
 #!/bin/zsh
 set -euo pipefail
-ARC="$HOME/Downloads/_Archive"; [[ -d "$ARC" ]] || exit 0
+ARC="$HOME/Documents/Download_Archive"; [[ -d "$ARC" ]] || exit 0
 KEEP="${KEEP_DAYS:-90}"; CUR=$(date +%Y-%m)
 find "$ARC" -mindepth 2 -maxdepth 2 -type d ! -name "$CUR" | while read -r D; do
   B="$(basename "$D")"; C="$(basename "$(dirname "$D")")"

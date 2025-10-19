@@ -4,30 +4,28 @@
 <dict>
 	<key>EnvironmentVariables</key>
 	<dict>
-		<key>KEEP_DAYS</key>
-		<string>90</string>
-		<key>PURGE_OLD</key>
-		<string>1</string>
+		<key>HOME</key>
+		<string>/Users/brockmerkwan</string>
+		<key>PATH</key>
+		<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
 	</dict>
 	<key>Label</key>
-	<string>com.brock.archive.compactor.monthly</string>
+	<string>com.brock.logsentinel.daily</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/bin/zsh</string>
-		<string>/Users/brockmerkwan/Projects/devnotes/tools/maintenance/archive_compactor.sh</string>
+		<string>/usr/local/bin/daily_rotate</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/Users/brockmerkwan/Documents/Download_Archive/_compactor_stderr.log</string>
+	<string>/Users/brockmerkwan/Projects/devnotes/backups/launchd_stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/brockmerkwan/Documents/Download_Archive/_compactor_stdout.log</string>
+	<string>/Users/brockmerkwan/Projects/devnotes/backups/launchd_stdout.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
-		<key>Day</key>
-		<integer>1</integer>
 		<key>Hour</key>
-		<integer>19</integer>
+		<integer>18</integer>
 		<key>Minute</key>
 		<integer>0</integer>
 	</dict>

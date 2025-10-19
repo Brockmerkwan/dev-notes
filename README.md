@@ -74,3 +74,24 @@ This script updates:
 
 ### Daily: Log Sentinel
 ```
+[2025-10-19 14:07:38] start rotation
+→ Rotating 2 file(s) → /Users/brockmerkwan/Projects/devnotes/backups/devnotes_20251019_140738.tar.gz
+→ Retention: keep last 7 archive(s)
+→ Done.
+→ Rotating 3 file(s) → /Users/brockmerkwan/Projects/devnotes/backups/daily_20251019_140738.tar.gz
+→ Retention: keep last 7 archive(s)
+→ Done.
+[2025-10-19 14:07:38] done
+[2025-10-19 15:31:21] start rotation
+[2025-10-19 15:31:21] ERROR: /Users/brockmerkwan/Downloads/log_sentinel.sh not found or not executable
+```
+
+### Weekly: Downloads Tidy
+```
+(no log)
+```
+
+### Quick checks
+```bash
+launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
+```

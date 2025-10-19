@@ -19,9 +19,9 @@
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/Users/brockmerkwan/Downloads/_Archive/_tidy_stderr.log</string>
+	<string>/Users/brockmerkwan/Documents/Download_Archive/_tidy_stderr.log</string>
 	<key>StandardOutPath</key>
-	<string>/Users/brockmerkwan/Downloads/_Archive/_tidy_stdout.log</string>
+	<string>/Users/brockmerkwan/Documents/Download_Archive/_tidy_stdout.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Hour</key>
