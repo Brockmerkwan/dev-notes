@@ -1,0 +1,23 @@
+#!/bin/zsh
+set -euo pipefail
+DL="$HOME/Downloads"
+ARC="$HOME/Library/Application Support/Download_Archive"   # <-- real home in Documents
+LOG="$ARC/_tidy_weekly.log"
+mkdir -p "$ARC"
+ts(){ date '+%Y-%m-%d %H:%M:%S'; }
+log(){ echo "[$(ts)] $*" >> "$LOG"; }
+move_to(){ local src="$1" dst_root="$2"; [[ -e "$src" ]] || return 0
+  local ym; ym="$(date -r "$src" +%Y-%m)"; local dst="$dst_root/$ym"
+  mkdir -p "$dst"; mv -n "$src" "$dst/" 2>/dev/null || mv "$src" "$dst/"; log "moved: ${src:t} -> $dst"; }
+
+log "== tidy_weekly start =="
+for f in "$DL"/*.zip(N) "$DL"/*.tar.gz(N) "$DL"/*.tgz(N) "$DL"/*.tar.zst(N); do [[ -e "$f" ]] && move_to "$f" "$ARC/Bundles"; done
+for f in "$DL"/*.dmg(N) "$DL"/*.pkg(N); do [[ -e "$f" ]] && move_to "$f" "$ARC/DiskImages"; done
+for f in "$DL"/*.pdf(N) "$DL"/*.md(N) "$DL"/*.txt(N) "$DL"/*.rtf(N); do [[ -e "$f" ]] && move_to "$f" "$ARC/Docs"; done
+for f in "$DL"/*.(png|jpg|jpeg|webp)(N); do [[ -e "$f" ]] && move_to "$f" "$ARC/Images"; done
+for f in "$DL"/*devnotes*.*(N) "$DL"/*devtools*.*(N) "$DL"/*levelup*.*(N) "$DL"/*pack*.zip(N); do [[ -e "$f" ]] && move_to "$f" "$ARC/DevPacks"; done
+for d in "$DL"/*(/N); do base="${d:t}"; [[ "$base" == "_Archive" || "$base" == .* ]] && continue
+  mb=$(du -sm "$d" 2>/dev/null | awk '{print $1}'); [[ -n "$mb" && "$mb" -ge 1 ]] && move_to "$d" "$ARC/Folders"
+done
+find "$DL" -mindepth 1 -maxdepth 1 -type d -empty -not -name "_Archive" -delete 2>/dev/null || true
+log "== tidy_weekly done =="
