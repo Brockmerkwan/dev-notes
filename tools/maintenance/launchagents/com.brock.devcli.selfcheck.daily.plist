@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict>
+  <key>Label</key><string>com.brock.devcli.selfcheck.daily</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/brockmerkwan/Projects/devnotes/tools/devcli/devcli_selfcheck.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><dict>
+    <key>Hour</key><integer>19</integer>
+    <key>Minute</key><integer>15</integer>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/Users/brockmerkwan/Projects/devnotes/backups/selfcheck_stdout.log</string>
+  <key>StandardErrorPath</key><string>/Users/brockmerkwan/Projects/devnotes/backups/selfcheck_stderr.log</string>
+</dict></plist>

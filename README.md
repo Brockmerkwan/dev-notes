@@ -182,3 +182,9 @@ launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compact
 ```
 ```
 
+
+## Maintenance Snapshot — DevCLI v1.5 "Reliquary"
+- Adds `tools/devcli/wait_ollama.sh` (60s readiness probe)
+- Adds `tools/devcli/devcli_selfcheck.sh` (API, stream, tools, repo write)
+- Daily LaunchAgent: `com.brock.devcli.selfcheck.daily` (19:15 local)
+- Log: `backups/devcli_selfcheck.log`
