@@ -1,0 +1,433 @@
+#!/usr/bin/env bash
+# devnotesctl — DevNotes CLI Suite (v1.3)
+set -euo pipefail
+
+VERSION="1.3.0"
+CONFIG_DIR="$HOME/.devnotesctl"
+CONFIG_FILE="$CONFIG_DIR/config"
+PROMPT_FILE_DEFAULT="$CONFIG_DIR/DevNotes_Operator_Prompt.txt"
+BIN_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PY_JSON="$BIN_SELF/json_escape.py"
+[[ -x "$PY_JSON" ]] || PY_JSON="$HOME/.devnotesctl/json_escape.py"
+
+BOLD="\033[1m"; DIM="\033[2m"; GRN="\033[32m"; CYA="\033[36m"; MAG="\033[35m"; YEL="\033[33m"; RED="\033[31m"; RST="\033[0m"
+die(){ echo -e "${RED}[x]${RST} $*" >&2; exit 1; }
+info(){ echo -e "${CYA}[i]${RST} $*"; }
+ok(){ echo -e "${GRN}[ok]${RST} $*"; }
+
+ensure_installed(){
+  mkdir -p "$CONFIG_DIR"
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    cp -f "$(dirname "$BIN_SELF")/../etc/config" "$CONFIG_FILE" || die "Cannot install default config"
+    info "Installed default config → $CONFIG_FILE"
+  fi
+  if [[ ! -f "$PROMPT_FILE_DEFAULT" ]]; then
+    cp -f "$(dirname "$BIN_SELF")/../etc/DevNotes_Operator_Prompt.txt" "$PROMPT_FILE_DEFAULT" || die "Cannot install prompt"
+    info "Installed Operator prompt → $PROMPT_FILE_DEFAULT"
+  fi
+}
+
+load_cfg(){
+  ensure_installed
+  source "$CONFIG_FILE"
+  mkdir -p "$SESSIONS_DIR"
+  PROMPT_FILE="${PROMPT_FILE:-$PROMPT_FILE_DEFAULT}"
+}
+
+http_status(){ curl -s -o /dev/null -w '%{http_code}' "$1" || echo "000"; }
+
+ollama_pick_model(){
+  local body code
+  body="$(curl -sS -w $'\nHTTP:%{http_code}\n' "${OLLAMA_URL}/models" || true)"
+  code="$(printf "%s" "$body" | tail -n1 | sed -n 's/^HTTP://p')"
+  if [[ "$code" == "200" ]]; then
+    printf "%s" "$body" | sed '$d' | python3 - <<'PY'
+import sys,json
+data=json.load(sys.stdin)
+prio=['llama3','llama','qwen','mistral','phi','gemma']
+names=[m.get('id') or m.get('name') for m in data.get('data',[]) if m.get('id') or m.get('name')]
+def score(n):
+  s=100; low=n.lower()
+  for i,p in enumerate(prio):
+    if p in low: s=min(s,i)
+  return s
+names=sorted(names,key=lambda n:(score(n),len(n)))
+print(names[0] if names else '')
+PY
+    return 0
+  fi
+  body="$(curl -sS -w $'\nHTTP:%{http_code}\n' "${OLLAMA_URL%/v1}/api/tags" || true)"
+  code="$(printf "%s" "$body" | tail -n1 | sed -n 's/^HTTP://p')"
+  if [[ "$code" == "200" ]]; then
+    printf "%s" "$body" | sed '$d' | python3 - <<'PY'
+import sys,json
+data=json.load(sys.stdin)
+prio=['llama3','llama','qwen','mistral','phi','gemma']
+names=[m.get('name') for m in data.get('models',[]) if m.get('name')]
+def score(n):
+  s=100; low=n.lower()
+  for i,p in enumerate(prio):
+    if p in low: s=min(s,i)
+  return s
+names=sorted(names,key=lambda n:(score(n),len(n)))
+print(names[0] if names else '')
+PY
+    return 0
+  fi
+  echo ""
+}
+
+ensure_ollama_model(){
+  if [[ -z "${OLLAMA_MODEL:-}" ]]; then
+    local pick; pick="$(ollama_pick_model)"
+    if [[ -n "$pick" ]]; then
+      OLLAMA_MODEL="$pick"
+      /usr/bin/perl -0777 -i -pe "s/^OLLAMA_MODEL=.*/OLLAMA_MODEL=${pick}/" "$CONFIG_FILE" 2>/dev/null || true
+      info "Autodetected Ollama model: $pick"
+    else
+      die "No Ollama model detected. Pull one, e.g.:  ollama pull llama3.1"
+    fi
+  fi
+}
+
+ask_lmstudio(){
+  local prompt="$1" outfile="$2"
+  local system_json RESP CODE BODY
+  system_json="$("$PY_JSON" "$PROMPT_FILE")"
+  RESP=$(curl -sS -w $'\nHTTP:%{http_code}\n' "${LMSTUDIO_URL}/chat/completions" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"model\": \"${LMSTUDIO_MODEL}\",
+      \"messages\": [
+        {\"role\": \"system\", \"content\": ${system_json}},
+        {\"role\": \"user\",   \"content\": $(echo "$prompt" | "$PY_JSON")}
+      ],
+      \"temperature\": 0.3,
+      \"max_tokens\": 512,
+      \"stream\": false
+    }")
+  CODE="$(printf "%s" "$RESP" | tail -n1 | sed -n 's/^HTTP://p')"
+  BODY="$(printf "%s" "$RESP" | sed '$d')"
+  if [[ "$CODE" != "200" ]]; then
+    echo "[error] LM Studio HTTP $CODE" >&2; echo "$BODY" >&2; exit 1
+  fi
+  printf "%s" "$BODY" | python3 - "$outfile" <<'PY'
+import sys, json, pathlib
+text=sys.stdin.read()
+try:
+  resp=json.loads(text)
+except Exception:
+  print(text); raise
+content=resp["choices"][0]["message"]["content"]
+p=pathlib.Path(sys.argv[1]); p.write_text(content); print(content)
+PY
+}
+
+ask_ollama(){
+  local prompt="$1" outfile="$2"
+  ensure_ollama_model
+  local system_json RESP CODE BODY
+  system_json="$("$PY_JSON" "$PROMPT_FILE")"
+  RESP=$(curl -sS -w $'\nHTTP:%{http_code}\n' "${OLLAMA_URL}/chat/completions" \
+    -H "Content-Type: application/json" \
+    -d "{
+      \"model\": \"${OLLAMA_MODEL}\",
+      \"messages\": [
+        {\"role\": \"system\", \"content\": ${system_json}},
+        {\"role\": \"user\",   \"content\": $(echo "$prompt" | "$PY_JSON")}
+      ],
+      \"temperature\": 0.3,
+      \"max_tokens\": 512,
+      \"stream\": false
+    }")
+  CODE="$(printf "%s" "$RESP" | tail -n1 | sed -n 's/^HTTP://p')"
+  BODY="$(printf "%s" "$RESP" | sed '$d')"
+  if [[ "$CODE" != "200" ]]; then
+    echo "[error] Ollama HTTP $CODE" >&2; echo "$BODY" >&2; exit 1
+  fi
+  printf "%s" "$BODY" | python3 - "$outfile" <<'PY'
+import sys, json, pathlib
+text=sys.stdin.read()
+try:
+  resp=json.loads(text)
+except Exception:
+  print(text); raise
+content=resp["choices"][0]["message"]["content"]
+p=pathlib.Path(sys.argv[1]); p.write_text(content); print(content)
+PY
+}
+
+git_autocommit(){
+  local path="$1"
+  if [[ "${GIT_AUTOCOMMIT_SESSIONS:-false}" == "true" ]]; then
+    ( cd "$REPO_DIR" && git add "$path" && git commit -m "ai(session): add $(basename "$path")" && git push "${GIT_REMOTE:-origin}" || true )
+    ok "Auto-committed AI session."
+  fi
+}
+
+ask(){
+  load_cfg
+  local prompt="$*"; [[ -z "$prompt" ]] && die "No prompt provided"
+  local ts fname out rel
+  ts="$(date '+%F_%H-%M-%S')"
+  fname="session_${ts}.md"
+  out="$SESSIONS_DIR/$fname"
+  rel="docs/ai_sessions/$fname"
+  info "Provider: ${PROVIDER} → saving to $out"
+  case "${PROVIDER}" in
+    ollama)   ask_ollama   "$prompt" "$out" ;;
+    lmstudio) ask_lmstudio "$prompt" "$out" ;;
+    *) die "Unknown provider: $PROVIDER" ;;
+  esac
+  ok "Saved: $out"
+  git_autocommit "$rel"
+}
+
+audit(){ load_cfg; local profile="${1:-fast}"; case "$profile" in fast|medium|deep) ;; *) die "profile must be fast|medium|deep";; esac; bash "$SCRIPTS_DIR/run_sys_audit_wrapper.sh" --profile "$profile" || true; ok "Audit ($profile) complete."; }
+hub_run(){ load_cfg; bash "$REPO_DIR/scripts/automation_hub.sh" || true; ok "Hub run complete."; }
+readme_update(){ load_cfg; bash "$REPO_DIR/update_readme.sh" || true; ok "README refreshed."; }
+sessions_list(){ load_cfg; ls -1t "$SESSIONS_DIR" 2>/dev/null || echo "(no sessions yet)"; }
+config_show(){ load_cfg; echo "# Active config ($CONFIG_FILE):"; cat "$CONFIG_FILE"; echo "# Prompt file: $PROMPT_FILE"; }
+
+pulse(){
+  load_cfg
+  local branch count_summ last_audit oll lm
+  branch="$(cd "$REPO_DIR" && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+  count_summ="$(ls -1 "$HOME/SysAudits/summaries" 2>/dev/null | wc -l | awk '{print $1}')"
+  last_audit="$(ls -1t "$HOME/SysAudits"/*.txt 2>/dev/null | head -n1 || echo 'n/a')"
+  oll="$(http_status "${OLLAMA_URL}/models")"
+  lm="$(http_status "${LMSTUDIO_URL}/models")"
+  echo -e "${BOLD}DevNotes Pulse${RST}"
+  echo "Repo: $REPO_DIR"
+  echo "Branch: $branch"
+  echo "Summaries: $count_summ"
+  echo "Last audit: $last_audit"
+  echo "Ollama /v1/models: HTTP $oll"
+  echo "LM Studio /v1/models: HTTP $lm"
+  echo "Provider: $PROVIDER  |  OLLAMA_MODEL: ${OLLAMA_MODEL:-<auto>}"
+}
+
+export_session(){
+  load_cfg
+  local target="${1:-latest}" file
+  if [[ "$target" == "latest" ]]; then
+    file="$(ls -1t "$SESSIONS_DIR"/session_*.md 2>/dev/null | head -n1 || true)"
+    [[ -z "$file" ]] && die "No sessions to export."
+  else
+    file="$SESSIONS_DIR/$target"; [[ -f "$file" ]] || die "No such session: $file"
+  fi
+  local base branch
+  base="$(basename "$file")"
+  branch="feature/ai-session-${base%.md}"
+  ( cd "$REPO_DIR" && git switch -c "$branch" || git checkout -b "$branch" || true; git add "docs/ai_sessions/$base"; git commit -m "ai(session): propose ${base}" || true; git push -u "${GIT_REMOTE:-origin}" "$branch" || true )
+  ok "Exported on branch: $branch (push attempted)."
+}
+
+recipe_launchd_fast(){
+  local plist="$HOME/Library/LaunchAgents/com.devnotes.sysaudit.fast.plist"
+  cat > "$plist" <<'PL'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.devnotes.sysaudit.fast</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/bash</string><string>-lc</string>
+    <string>/Users/$USER/scripts/run_sys_audit_wrapper.sh --profile fast</string>
+  </array>
+  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>2</integer><key>Minute</key><integer>0</integer></dict>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/tmp/com.devnotes.sysaudit.fast.out</string>
+  <key>StandardErrorPath</key><string>/tmp/com.devnotes.sysaudit.fast.err</string>
+</dict></plist>
+PL
+  launchctl unload "$plist" 2>/dev/null || true
+  launchctl load "$plist"
+  ok "LaunchAgent installed+loaded: $plist"
+}
+
+recipe_readme_lesson3(){
+  local f="$REPO_DIR/README.md"; [[ -f "$f" ]] || die "README not found at $f"
+  /usr/bin/awk -v start="<!--AUTO:LESSON_LOG_START-->" -v end="<!--AUTO:LESSON_LOG_END-->" '
+    $0==start {print; print "- ✅ Lesson 3 – Network Recon Foundations ('"$(date +%F)"')"; next}
+    $0==end {print; print; print end; next}
+    {print}
+  ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+  ( cd "$REPO_DIR" && git add README.md && git commit -m "docs: add Lesson 3 checkpoint" && git push "${GIT_REMOTE:-origin}" || true )
+  ok "Patched README with Lesson 3; committed."
+}
+
+recipe_ci_shellcheck(){
+  mkdir -p "$REPO_DIR/.github/workflows"
+  local yml="$REPO_DIR/.github/workflows/lint-shell.yml"
+  cat > "$yml" <<'YML'
+name: Lint Shell Scripts
+on:
+  push:
+    paths:
+      - "scripts/*.sh"
+      - ".github/workflows/lint-shell.yml"
+  pull_request:
+    paths:
+      - "scripts/*.sh"
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Run shellcheck
+        run: shellcheck scripts/*.sh || true
+YML
+  ( cd "$REPO_DIR" && git add "$yml" && git commit -m "ci: add shellcheck for scripts/*.sh" && git push "${GIT_REMOTE:-origin}" || true )
+  ok "Shellcheck workflow added."
+}
+
+recipe_report_template(){
+  mkdir -p "$REPO_DIR/docs/reports"
+  local f="$REPO_DIR/docs/reports/$(date +%F).md"
+  cat > "$f" <<'MD'
+# Daily Report
+
+## System
+- Host:
+- Time (UTC):
+
+## Audit Indicators
+- World-writable files:
+- SUID files:
+- Listening sockets:
+- Docker containers:
+
+## Notes
+-
+
+## Next Steps
+-
+
+MD
+  ( cd "$REPO_DIR" && git add "$f" && git commit -m "docs: add daily report template ($(date +%F))" && git push "${GIT_REMOTE:-origin}" || true )
+  ok "Report template created: $f"
+}
+
+selftest(){
+  load_cfg
+  echo "=== Self-Test ==="
+  echo "- Ollama:"
+  curl -s -o /dev/null -w "  /v1/models -> HTTP %{http_code}\n" "${OLLAMA_URL}/models"
+  echo "- LM Studio:"
+  curl -s -o /dev/null -w "  /v1/models -> HTTP %{http_code}\n" "${LMSTUDIO_URL}/models"
+  echo "- Autodetect Ollama model (if empty):"
+  if [[ -z "${OLLAMA_MODEL:-}" ]]; then
+    local pick; pick="$(ollama_pick_model)"
+    echo "  pick: ${pick:-<none>}"
+  else
+    echo "  configured: $OLLAMA_MODEL"
+  fi
+}
+
+recipes_menu(){
+  load_cfg
+  while true; do
+    clear
+    echo -e "${BOLD}Recipes — Generators${RST}"
+    echo "1) LaunchAgent: daily 02:00 FAST audit (create+load)"
+    echo "2) README patch: add Lesson 3 checkpoint"
+    echo "3) CI: shellcheck for scripts/*.sh"
+    echo "4) Report template: docs/reports/YYYY-MM-DD.md"
+    echo "5) Self-Test (endpoints + models)"
+    echo "0) Back"
+    echo
+    read -rp "Choose: " r
+    case "$r" in
+      1) recipe_launchd_fast ; read -rp "Press Enter..." _ ;;
+      2) recipe_readme_lesson3 ; read -rp "Press Enter..." _ ;;
+      3) recipe_ci_shellcheck ; read -rp "Press Enter..." _ ;;
+      4) recipe_report_template ; read -rp "Press Enter..." _ ;;
+      5) selftest ; read -rp "Press Enter..." _ ;;
+      0) break ;;
+      *) echo "Invalid"; sleep 1 ;;
+    esac
+  done
+}
+
+usage(){
+  cat <<USAGE
+${BOLD}devnotesctl${RST} v${VERSION} — DevNotes CLI Suite
+  devnotesctl menu
+  devnotesctl ask "your prompt..."
+  devnotesctl audit [fast|medium|deep]
+  devnotesctl hub run
+  devnotesctl readme update
+  devnotesctl sessions list
+  devnotesctl config show
+  devnotesctl export session [latest|FILE]
+  devnotesctl pulse
+  devnotesctl recipes
+  devnotesctl selftest
+USAGE
+}
+
+menu(){
+  load_cfg
+  while true; do
+    clear
+    echo -e "${BOLD}DevNotes CLI — devnotesctl${RST}    (v${VERSION})"
+    echo "Repo: $REPO_DIR"
+    echo "Provider: $PROVIDER  (OLLAMA_MODEL: ${OLLAMA_MODEL:-<auto>} | LM: ${LMSTUDIO_MODEL})"
+    echo
+    echo "1) Ask Operator (quick prompt)"
+    echo "2) Run Audit (fast)"
+    echo "3) Run Audit (medium)"
+    echo "4) Run Audit (deep)"
+    echo "5) Run Automation Hub (audit→commit→README)"
+    echo "6) Update README (now)"
+    echo "7) List AI Sessions"
+    echo "8) Show Config"
+    echo "9) Switch Provider"
+    echo "p) Pulse (status summary)"
+    echo "r) Recipes (generators)"
+    echo "t) Self-Test"
+    echo "e) Export latest AI session → PR branch"
+    echo "0) Exit"
+    echo
+    read -rp "Choose: " ch
+    case "$ch" in
+      1) read -rp "Enter prompt: " p; ask "$p"; read -rp "Press Enter..." _ ;;
+      2) audit fast; read -rp "Press Enter..." _ ;;
+      3) audit medium; read -rp "Press Enter..." _ ;;
+      4) audit deep; read -rp "Press Enter..." _ ;;
+      5) hub_run; read -rp "Press Enter..." _ ;;
+      6) readme_update; read -rp "Press Enter..." _ ;;
+      7) sessions_list; read -rp "Press Enter..." _ ;;
+      8) config_show; read -rp "Press Enter..." _ ;;
+      9) if [[ "${PROVIDER}" = "lmstudio" ]]; then sed -i '' 's/^PROVIDER=.*/PROVIDER=ollama/' "$CONFIG_FILE"; else sed -i '' 's/^PROVIDER=.*/PROVIDER=lmstudio/' "$CONFIG_FILE"; fi; info "Provider switched. Restart menu."; sleep 1;;
+      p|P) pulse; read -rp "Press Enter..." _ ;;
+      r|R) recipes_menu ;;
+      t|T) selftest; read -rp "Press Enter..." _ ;;
+      e|E) export_session latest; read -rp "Press Enter..." _ ;;
+      0) exit 0;;
+      *) echo "Invalid choice"; sleep 1;;
+    esac
+  done
+}
+
+main(){
+  local cmd="${1:-menu}"; shift || true
+  case "$cmd" in
+    ask) ask "$@";;
+    audit) audit "${1:-fast}";;
+    hub) case "${1:-}" in run) hub_run;; *) usage;; esac ;;
+    readme) case "${1:-}" in update) readme_update;; *) usage;; esac ;;
+    sessions) case "${1:-}" in list) sessions_list;; *) usage;; esac ;;
+    config) case "${1:-}" in show) config_show;; *) usage;; esac ;;
+    export) case "${1:-}" in session) export_session "${2:-latest}";; *) usage;; esac ;;
+    recipes) recipes_menu ;;
+    pulse) pulse ;;
+    selftest) selftest ;;
+    menu) menu ;;
+    help|-h|--help) usage ;;
+    *) usage ;;
+  esac
+}
+main "$@"

@@ -1,0 +1,13 @@
+# devnotesctl config (v1.3)
+PROVIDER=ollama
+LMSTUDIO_URL="http://localhost:1234/v1"
+LMSTUDIO_MODEL="lmstudio-community/Meta-Llama-3.1-8B-Instruct"
+OLLAMA_URL="http://localhost:11434/v1"
+OLLAMA_MODEL=""
+REPO_DIR="$HOME/Projects/devnotes"
+SCRIPTS_DIR="$HOME/scripts"
+PROMPT_FILE="$HOME/.devnotesctl/DevNotes_Operator_Prompt.txt"
+SESSIONS_DIR="$REPO_DIR/docs/ai_sessions"
+GIT_AUTOCOMMIT_SESSIONS=true
+GIT_REMOTE=origin
+GIT_DEFAULT_BRANCH=main
