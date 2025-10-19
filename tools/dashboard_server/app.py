@@ -117,3 +117,26 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=int(os.environ.get("PORT","8765")))
+
+
+@app.post("/api/rotate_token")
+def rotate_token():
+    # localhost only for safety
+    ra = request.remote_addr or ""
+    if ra not in ("127.0.0.1","::1",""):
+        return jsonify({"ok": False, "error": "forbidden", "rc": 995}), 403
+    # generate
+    alphabet = string.ascii_letters + string.digits
+    new_tok = ''.join(secrets.choice(alphabet) for _ in range(24))
+    # write into LaunchAgent
+    try:
+        pl = os.path.expanduser("~/Library/LaunchAgents/com.brock.dashboard.http.plist")
+        # PlistBuddy set
+        cmd = ["/usr/libexec/PlistBuddy","-c","Set :EnvironmentVariables:DASH_TOKEN "+new_tok, pl]
+        _ = subprocess.run(cmd, capture_output=True, text=True, env=ENV)
+        # reload service
+        subprocess.run(["/bin/launchctl","unload",pl], capture_output=True, text=True, env=ENV)
+        subprocess.run(["/bin/launchctl","load",pl],   capture_output=True, text=True, env=ENV)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e), "rc": 994}), 500
+    return jsonify({"ok": True, "token": new_tok})

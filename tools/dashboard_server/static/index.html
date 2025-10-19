@@ -26,6 +26,8 @@ pre{background:#0b1222;border:1px solid #1f2a44;padding:10px;border-radius:10px;
     <label class="small">Auth token:</label>
     <input id="tok" type="text" placeholder="(auto)" />
     <button id="saveTok">Use Token</button>
+    <label class="small"><input id="auto" type="checkbox" /> Auto-refresh (10s)</label>
+    <button id="rotTok">Rotate Token</button>
     <button id="refresh">Refresh</button>
     <button data-run="daily">Run Daily Rotate</button>
     <button data-run="tidy">Run Weekly Tidy</button>
@@ -45,6 +47,7 @@ pre{background:#0b1222;border:1px solid #1f2a44;padding:10px;border-radius:10px;
 </div>
 <script>
 const S = id => document.getElementById(id);
+let autoTimer=null;
 let token = localStorage.getItem('dash_token') || '';
 
 async function getToken() {
@@ -91,15 +94,38 @@ async function refresh() {
 
 async function run(name){
   const j = await api('/api/run/'+name, {method:'POST'});
-  alert(name.toUpperCase()+': '+(j.ok?'OK':('ERR '+(j.rc!==undefined?j.rc:(j.error||'unknown')))));
+  alert(name.toUpperCase()+': '+(j.ok?'OK':'ERR '+(j.rc!==undefined?j.rc:(j.error||'unknown'))) + (j.stdout? '\n\n'+shortTail(j.stdout,3):''));
   refresh();
 }
 
 S('saveTok').onclick = ()=>{ token = S('tok').value.trim(); localStorage.setItem('dash_token', token); S('authBanner').style.display='none'; refresh(); };
 S('refresh').onclick = ()=>refresh();
+S('rotTok').onclick=()=>rotateToken();
+S('auto').checked = (localStorage.getItem('dash_auto')==='1');
+S('auto').onchange=()=>{localStorage.setItem('dash_auto', S('auto').checked?'1':'0'); setupAuto();};
+function setupAuto(){ if(autoTimer){ clearInterval(autoTimer); autoTimer=null;} if(S('auto').checked){ autoTimer=setInterval(refresh,10000);} }
 for(const b of document.querySelectorAll('[data-run]')) b.onclick = ()=>run(b.getAttribute('data-run'));
 
 // bootstrap
-(async ()=>{ S('tok').value = token; await getToken(); refresh(); })();
+(async ()=>{ S('tok').value = token; await getToken(); setupAuto(); refresh(); })();
+
+function shortTail(t, n=3){
+  if(!t) return '';
+  const a=t.split('\n').filter(Boolean);
+  return a.slice(-n).join('\n');
+}
+async function rotateToken(){
+  try{
+    const r=await fetch('/api/rotate_token',{method:'POST'});
+    const j=await r.json();
+    if(j.ok){
+      localStorage.setItem('dash_token', j.token);
+      S('tok').value=j.token;
+      alert('TOKEN: rotated. Service reloaded.');
+    }else{
+      alert('TOKEN: ERR ' + (j.rc!==undefined?j.rc:(j.error||'unknown')));
+    }
+  }catch(e){ alert('TOKEN: ERR ' + e.message); }
+}
 </script>
 </body></html>
