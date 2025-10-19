@@ -1,0 +1,105 @@
+<!doctype html><html><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Devnotes Control Panel</title>
+<style>
+:root{--bg:#0b0f17;--panel:#121827;--muted:#9aa4b2;--text:#e5e7eb;--ok:#22c55e;--bad:#ef4444;--acc:#60a5fa}
+*{box-sizing:border-box}body{margin:0;background:#0b0f17;color:var(--text);font:14px/1.4 Inter,system-ui,sans-serif}
+.wrap{max-width:1100px;margin:28px auto;padding:0 16px}
+h1{font-size:22px;margin:0 0 6px} .sub{color:var(--muted);margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+.card{grid-column:span 12;background:#121827;border:1px solid #1f2a44;border-radius:14px;padding:12px}
+@media(min-width:860px){.half{grid-column:span 6}}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+button{border:1px solid #2b3a63;background:#17223a;color:#eaf2ff;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer}
+button:disabled{opacity:.5}
+pre{background:#0b1222;border:1px solid #1f2a44;padding:10px;border-radius:10px;max-height:240px;overflow:auto;white-space:pre-wrap}
+.small{color:#9aa4b2;font-size:12px}
+.banner{background:#7a2323;color:#fecaca;border:1px solid #a33; padding:8px 12px; border-radius:10px;display:none;margin:8px 0}
+</style>
+</head><body><div class="wrap">
+  <h1>Devnotes Control Panel</h1>
+  <div class="sub">Run jobs & view logs. Global control of your existing launchd suite.</div>
+
+  <div id="authBanner" class="banner">Auth token required and not set. Paste it below (pre-filled if discovered locally).</div>
+
+  <div class="row">
+    <label class="small">Auth token:</label>
+    <input id="tok" type="text" placeholder="(auto)" />
+    <button id="saveTok">Use Token</button>
+    <button id="refresh">Refresh</button>
+    <button data-run="daily">Run Daily Rotate</button>
+    <button data-run="tidy">Run Weekly Tidy</button>
+    <button data-run="compact">Run Monthly Compactor</button>
+    <button data-run="overview">Refresh README Overview</button>
+    <button data-run="selfcheck">Run DevCLI Selfcheck</button>
+  </div>
+
+  <div class="grid">
+    <section class="card half"><h3>Agents</h3><pre id="agents">—</pre></section>
+    <section class="card half"><h3>Daily Rotate</h3><pre id="daily">—</pre></section>
+    <section class="card half"><h3>Downloads Tidy</h3><pre id="tidy">—</pre></section>
+    <section class="card half"><h3>Compactor</h3><pre id="comp">—</pre></section>
+    <section class="card half"><h3>Selfcheck</h3><pre id="self">—</pre></section>
+    <section class="card half"><h3>README (tail)</h3><pre id="readme">—</pre></section>
+  </div>
+</div>
+<script>
+const S = id => document.getElementById(id);
+let token = localStorage.getItem('dash_token') || '';
+
+async function getToken() {
+  try{
+    const r = await fetch('/api/token');
+    const j = await r.json();
+    if(j.ok){
+      if(j.required){
+        // server requires a token; auto-fill if provided
+        if(j.token){ token = j.token; localStorage.setItem('dash_token', token); }
+        S('authBanner').style.display = token ? 'none':'block';
+      } else {
+        // no auth required
+        token = ''; localStorage.removeItem('dash_token');
+        S('authBanner').style.display = 'none';
+      }
+      S('tok').value = token || '';
+    }
+  }catch(e){ /* ignore */ }
+}
+
+async function api(path, opts={}) {
+  const headers = Object.assign({}, opts.headers||{});
+  if(token) headers['X-Auth'] = token;
+  const r = await fetch(path, Object.assign({headers}, opts));
+  let j = {};
+  try{ j = await r.json(); }catch{ j = { ok:false, error:'bad json', rc:996 }; }
+  if(!j.ok && j.error==='unauthorized'){
+    S('authBanner').style.display = 'block';
+  }
+  return j;
+}
+
+async function refresh() {
+  const j = await api('/api/status');
+  if(!j.ok){ S('agents').textContent = 'Error: ' + (j.error||('rc '+(j.rc??'unknown'))); return; }
+  S('agents').textContent = JSON.stringify(j.agents, null, 2);
+  S('daily').textContent  = j.logs.daily_rotate || '(no log)';
+  S('tidy').textContent   = j.logs.tidy_weekly  || '(no log)';
+  S('comp').textContent   = j.logs.compactor    || '(no log)';
+  S('self').textContent   = j.logs.selfcheck    || '(no log)';
+  S('readme').textContent = j.logs.readme_tail  || '(no data)';
+}
+
+async function run(name){
+  const j = await api('/api/run/'+name, {method:'POST'});
+  alert(name.toUpperCase()+': '+(j.ok?'OK':('ERR '+(j.rc!==undefined?j.rc:(j.error||'unknown')))));
+  refresh();
+}
+
+S('saveTok').onclick = ()=>{ token = S('tok').value.trim(); localStorage.setItem('dash_token', token); S('authBanner').style.display='none'; refresh(); };
+S('refresh').onclick = ()=>refresh();
+for(const b of document.querySelectorAll('[data-run]')) b.onclick = ()=>run(b.getAttribute('data-run'));
+
+// bootstrap
+(async ()=>{ S('tok').value = token; await getToken(); refresh(); })();
+</script>
+</body></html>
