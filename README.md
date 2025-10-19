@@ -68,3 +68,5 @@ This script updates:
 > “Automate what you can, learn what you must, and document everything that keeps the fire burning.” – Brock Merkwan
 
 <p align="center"><sub>💾 README.LIVE v1.1 — maintained by your Automation Suite</sub></p>
+
+[![Deploy Dev Notes](https://github.com/Brockmerkwan/dev-notes/actions/workflows/deploy.yml/badge.svg)](https://github.com/Brockmerkwan/dev-notes/actions/workflows/deploy.yml)
