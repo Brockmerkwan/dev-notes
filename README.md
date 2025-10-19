@@ -74,33 +74,3 @@ This script updates:
 
 ### Daily: Log Sentinel
 ```
-→ Done.
-[2025-10-19 14:02:47] done
-[2025-10-19 14:07:38] start rotation
-→ Rotating 2 file(s) → /Users/brockmerkwan/Projects/devnotes/backups/devnotes_20251019_140738.tar.gz
-→ Retention: keep last 7 archive(s)
-→ Done.
-→ Rotating 3 file(s) → /Users/brockmerkwan/Projects/devnotes/backups/daily_20251019_140738.tar.gz
-→ Retention: keep last 7 archive(s)
-→ Done.
-[2025-10-19 14:07:38] done
-```
-
-### Weekly: Downloads Tidy
-```
-[2025-10-19 14:27:14] moved: devnotes_cli_suite_v1_3_1 -> /Users/brockmerkwan/Downloads/_Archive/Folders/2025-10
-[2025-10-19 14:27:14] moved: devnotes_cli_suite_v1_3_2 -> /Users/brockmerkwan/Downloads/_Archive/Folders/2025-10
-[2025-10-19 14:27:14] moved: devnotes_cli_suite_v1_3_3 -> /Users/brockmerkwan/Downloads/_Archive/Folders/2025-10
-[2025-10-19 14:27:14] moved: devnotes_levelup_pack -> /Users/brockmerkwan/Downloads/_Archive/Folders/2025-10
-[2025-10-19 14:27:14] moved: new_workflow_pack -> /Users/brockmerkwan/Downloads/_Archive/Folders/2025-10
-[2025-10-19 14:27:14] end folder_sweep
-[2025-10-19 14:27:14] start remove_empty_dirs
-[2025-10-19 14:27:14] no empty dirs
-[2025-10-19 14:27:14] end remove_empty_dirs
-[2025-10-19 14:27:14] == tidy_weekly done ==
-```
-
-### Quick checks
-```bash
-launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
-```
