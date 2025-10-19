@@ -25,6 +25,7 @@ printf '%s' "$GEN_REQ" | curl -sN -X POST http://localhost:11434/api/generate \
   -H 'Content-Type: application/json' --data-binary @- \
   | head -n 3 | sed 's/^/[stream-gen]  /' | tee -a "$LOG" >/dev/null || true
 # C) Host tools presence
+# C) Host tools presence
 # C) Host tools presence (if installed)
 for b in /usr/local/bin/devask_h /usr/local/bin/devteach_h /usr/local/bin/devnote_h; do
   [[ -x "$b" ]] && say "tool: present → ${b:t}" || say "tool: missing → ${b:t}"
