@@ -1,7 +1,7 @@
 # 🧠 **DevNotes: Living README**  
 > _Neon‑Terminal Edition – automated, adaptive, and always evolving._  
-_Last updated: 2025-10-19 17:07:30_
-_Current commit:_ `d862004`
+_Last updated: 2025-10-19 17:54:29_
+_Current commit:_ `fb28cfb`
 
 <p align="center">
   <img src="https://img.shields.io/badge/SYSTEM-ONLINE-00FFC8?style=for-the-badge&labelColor=0A0A0F&logo=github&logoColor=00FFC8">
@@ -74,16 +74,16 @@ This script updates:
 
 ### Daily: Log Sentinel
 ```
-[2025-10-19 16:03:39] start rotation
-[2025-10-19 16:03:40] done
-[2025-10-19 16:06:07] start rotation
-[2025-10-19 16:06:07] start rotation
-[2025-10-19 16:06:07] done
-[2025-10-19 16:06:07] done
-[2025-10-19 16:08:03] start rotation
-[2025-10-19 16:08:03] start rotation
 [2025-10-19 16:08:03] done
 [2025-10-19 16:08:03] done
+[2025-10-19 17:45:19] start rotation
+[2025-10-19 17:45:19] start rotation
+[2025-10-19 17:45:19] done
+[2025-10-19 17:45:19] done
+[2025-10-19 17:45:25] start rotation
+[2025-10-19 17:45:25] start rotation
+[2025-10-19 17:45:25] done
+[2025-10-19 17:45:25] done
 ```
 
 ### Weekly: Downloads Tidy
@@ -104,95 +104,3 @@ This script updates:
 ```bash
 launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
 ```
-## Maintenance Snapshot — 2025-10-19 16:33:31 CDT
-
-### LaunchAgents
--	0	com.brock.maintenance.overview.daily
--	0	com.brock.logsentinel.daily
--	0	com.brock.archive.compactor.monthly
--	0	com.brock.downloads.tidy.weekly
-
-### Recent Logs
-**daily_rotate.log**
-```
-[2025-10-19 16:03:39] start rotation
-[2025-10-19 16:03:40] done
-[2025-10-19 16:06:07] start rotation
-[2025-10-19 16:06:07] start rotation
-[2025-10-19 16:06:07] done
-[2025-10-19 16:06:07] done
-[2025-10-19 16:08:03] start rotation
-[2025-10-19 16:08:03] start rotation
-[2025-10-19 16:08:03] done
-[2025-10-19 16:08:03] done
-```
-**_tidy_weekly.log**
-```
-[2025-10-19 15:47:14] == tidy_weekly start ==
-[2025-10-19 15:47:14] == tidy_weekly done ==
-[2025-10-19 15:56:44] == tidy_weekly start ==
-[2025-10-19 15:56:44] == tidy_weekly done ==
-[2025-10-19 15:59:56] == tidy_weekly start ==
-[2025-10-19 15:59:56] == tidy_weekly done ==
-[2025-10-19 16:00:06] == tidy_weekly start ==
-[2025-10-19 16:00:06] == tidy_weekly done ==
-[2025-10-19 16:19:52] == tidy_weekly start ==
-[2025-10-19 16:19:52] == tidy_weekly done ==
-```
-**_compactor_stdout.log**
-```
-```
-
-## Maintenance Snapshot — 2025-10-19 16:33:31 CDT
-
-### LaunchAgents
--	0	com.brock.maintenance.overview.daily
--	0	com.brock.logsentinel.daily
--	0	com.brock.archive.compactor.monthly
--	0	com.brock.downloads.tidy.weekly
-
-### Recent Logs
-**daily_rotate.log**
-```
-[2025-10-19 16:03:39] start rotation
-[2025-10-19 16:03:40] done
-[2025-10-19 16:06:07] start rotation
-[2025-10-19 16:06:07] start rotation
-[2025-10-19 16:06:07] done
-[2025-10-19 16:06:07] done
-[2025-10-19 16:08:03] start rotation
-[2025-10-19 16:08:03] start rotation
-[2025-10-19 16:08:03] done
-[2025-10-19 16:08:03] done
-```
-**_tidy_weekly.log**
-```
-[2025-10-19 15:47:14] == tidy_weekly start ==
-[2025-10-19 15:47:14] == tidy_weekly done ==
-[2025-10-19 15:56:44] == tidy_weekly start ==
-[2025-10-19 15:56:44] == tidy_weekly done ==
-[2025-10-19 15:59:56] == tidy_weekly start ==
-[2025-10-19 15:59:56] == tidy_weekly done ==
-[2025-10-19 16:00:06] == tidy_weekly start ==
-[2025-10-19 16:00:06] == tidy_weekly done ==
-[2025-10-19 16:19:52] == tidy_weekly start ==
-[2025-10-19 16:19:52] == tidy_weekly done ==
-```
-**_compactor_stdout.log**
-```
-```
-
-
-## Maintenance Snapshot — DevCLI v1.5 "Reliquary"
-- Adds `tools/devcli/wait_ollama.sh` (60s readiness probe)
-- Adds `tools/devcli/devcli_selfcheck.sh` (API, stream, tools, repo write)
-- Daily LaunchAgent: `com.brock.devcli.selfcheck.daily` (19:15 local)
-- Log: `backups/devcli_selfcheck.log`
-
-### Lesson Complete — Maintenance & Selfcheck (Oct 19, 2025)
-- LaunchAgents: daily log rotation, weekly downloads tidy, monthly archive compactor
-- Paths unified to TCC-free archive under `~/Library/Application Support/Download_Archive` (Downloads symlink)
-- Lock wrappers prevent double-runs; logs tail clean
-- Daily README snapshot append
-- DevCLI v1.5 selfcheck (API, streaming, tool presence, repo write) — **validated**
-- Tags: `v1.2-maint-suite`, `v1.5-reliquary`
