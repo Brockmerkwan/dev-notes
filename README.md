@@ -74,24 +74,111 @@ This script updates:
 
 ### Daily: Log Sentinel
 ```
-[2025-10-19 14:07:38] start rotation
-→ Rotating 2 file(s) → /Users/brockmerkwan/Projects/devnotes/backups/devnotes_20251019_140738.tar.gz
-→ Retention: keep last 7 archive(s)
-→ Done.
-→ Rotating 3 file(s) → /Users/brockmerkwan/Projects/devnotes/backups/daily_20251019_140738.tar.gz
-→ Retention: keep last 7 archive(s)
-→ Done.
-[2025-10-19 14:07:38] done
-[2025-10-19 15:31:21] start rotation
-[2025-10-19 15:31:21] ERROR: /Users/brockmerkwan/Downloads/log_sentinel.sh not found or not executable
+[2025-10-19 16:03:39] start rotation
+[2025-10-19 16:03:40] done
+[2025-10-19 16:06:07] start rotation
+[2025-10-19 16:06:07] start rotation
+[2025-10-19 16:06:07] done
+[2025-10-19 16:06:07] done
+[2025-10-19 16:08:03] start rotation
+[2025-10-19 16:08:03] start rotation
+[2025-10-19 16:08:03] done
+[2025-10-19 16:08:03] done
 ```
 
 ### Weekly: Downloads Tidy
 ```
-(no log)
+[2025-10-19 15:47:14] == tidy_weekly start ==
+[2025-10-19 15:47:14] == tidy_weekly done ==
+[2025-10-19 15:56:44] == tidy_weekly start ==
+[2025-10-19 15:56:44] == tidy_weekly done ==
+[2025-10-19 15:59:56] == tidy_weekly start ==
+[2025-10-19 15:59:56] == tidy_weekly done ==
+[2025-10-19 16:00:06] == tidy_weekly start ==
+[2025-10-19 16:00:06] == tidy_weekly done ==
+[2025-10-19 16:19:52] == tidy_weekly start ==
+[2025-10-19 16:19:52] == tidy_weekly done ==
 ```
 
 ### Quick checks
 ```bash
 launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
 ```
+## Maintenance Snapshot — 2025-10-19 16:33:31 CDT
+
+### LaunchAgents
+-	0	com.brock.maintenance.overview.daily
+-	0	com.brock.logsentinel.daily
+-	0	com.brock.archive.compactor.monthly
+-	0	com.brock.downloads.tidy.weekly
+
+### Recent Logs
+**daily_rotate.log**
+```
+[2025-10-19 16:03:39] start rotation
+[2025-10-19 16:03:40] done
+[2025-10-19 16:06:07] start rotation
+[2025-10-19 16:06:07] start rotation
+[2025-10-19 16:06:07] done
+[2025-10-19 16:06:07] done
+[2025-10-19 16:08:03] start rotation
+[2025-10-19 16:08:03] start rotation
+[2025-10-19 16:08:03] done
+[2025-10-19 16:08:03] done
+```
+**_tidy_weekly.log**
+```
+[2025-10-19 15:47:14] == tidy_weekly start ==
+[2025-10-19 15:47:14] == tidy_weekly done ==
+[2025-10-19 15:56:44] == tidy_weekly start ==
+[2025-10-19 15:56:44] == tidy_weekly done ==
+[2025-10-19 15:59:56] == tidy_weekly start ==
+[2025-10-19 15:59:56] == tidy_weekly done ==
+[2025-10-19 16:00:06] == tidy_weekly start ==
+[2025-10-19 16:00:06] == tidy_weekly done ==
+[2025-10-19 16:19:52] == tidy_weekly start ==
+[2025-10-19 16:19:52] == tidy_weekly done ==
+```
+**_compactor_stdout.log**
+```
+```
+
+## Maintenance Snapshot — 2025-10-19 16:33:31 CDT
+
+### LaunchAgents
+-	0	com.brock.maintenance.overview.daily
+-	0	com.brock.logsentinel.daily
+-	0	com.brock.archive.compactor.monthly
+-	0	com.brock.downloads.tidy.weekly
+
+### Recent Logs
+**daily_rotate.log**
+```
+[2025-10-19 16:03:39] start rotation
+[2025-10-19 16:03:40] done
+[2025-10-19 16:06:07] start rotation
+[2025-10-19 16:06:07] start rotation
+[2025-10-19 16:06:07] done
+[2025-10-19 16:06:07] done
+[2025-10-19 16:08:03] start rotation
+[2025-10-19 16:08:03] start rotation
+[2025-10-19 16:08:03] done
+[2025-10-19 16:08:03] done
+```
+**_tidy_weekly.log**
+```
+[2025-10-19 15:47:14] == tidy_weekly start ==
+[2025-10-19 15:47:14] == tidy_weekly done ==
+[2025-10-19 15:56:44] == tidy_weekly start ==
+[2025-10-19 15:56:44] == tidy_weekly done ==
+[2025-10-19 15:59:56] == tidy_weekly start ==
+[2025-10-19 15:59:56] == tidy_weekly done ==
+[2025-10-19 16:00:06] == tidy_weekly start ==
+[2025-10-19 16:00:06] == tidy_weekly done ==
+[2025-10-19 16:19:52] == tidy_weekly start ==
+[2025-10-19 16:19:52] == tidy_weekly done ==
+```
+**_compactor_stdout.log**
+```
+```
+

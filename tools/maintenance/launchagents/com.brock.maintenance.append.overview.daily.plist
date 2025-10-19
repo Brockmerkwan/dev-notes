@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict>
+  <key>Label</key><string>com.brock.maintenance.append.overview.daily</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/zsh</string>
+    <string>/Users/brockmerkwan/Projects/devnotes/tools/maintenance/suite_append_overview.sh</string>
+  </array>
+  <key>StartCalendarInterval</key><dict>
+    <key>Hour</key><integer>19</integer>
+    <key>Minute</key><integer>10</integer>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/Users/brockmerkwan/Projects/devnotes/backups/overview_append_stdout.log</string>
+  <key>StandardErrorPath</key><string>/Users/brockmerkwan/Projects/devnotes/backups/overview_append_stderr.log</string>
+</dict></plist>
