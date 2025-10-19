@@ -17,13 +17,13 @@ fi
 CHAT_REQ='{"model":"mistral:latest","messages":[{"role":"user","content":"say hi"}],"stream":true}'
 printf '%s' "$CHAT_REQ" | curl -sN -X POST http://localhost:11434/api/chat \
   -H 'Content-Type: application/json' --data-binary @- \
-  | head -n 3 | sed 's/^/[stream-chat] /' | tee -a "$LOG" >/dev/null || true
+  | grep -v "\"error\"" | head -n 3 | sed 's/^/[stream-chat] /' | tee -a "$LOG" >/dev/null || true
 
 # if chat produced nothing, try /api/generate
-GEN_REQ='{"model":"llama3.1:8b","prompt":"say hi","stream":true}'
+GEN_REQ='{"model":"mistral:latest","prompt":"say hi","stream":true}'
 printf '%s' "$GEN_REQ" | curl -sN -X POST http://localhost:11434/api/generate \
   -H 'Content-Type: application/json' --data-binary @- \
-  | head -n 3 | sed 's/^/[stream-gen]  /' | tee -a "$LOG" >/dev/null || true
+  | grep -v "\"error\"" | head -n 3 | sed 's/^/[stream-gen]  /' | tee -a "$LOG" >/dev/null || true
 # C) Host tools presence
 # C) Host tools presence
 # C) Host tools presence (if installed)
