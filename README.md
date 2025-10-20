@@ -1,6 +1,6 @@
 # 🧠 **DevNotes: Living README**  
 > _Neon‑Terminal Edition – automated, adaptive, and always evolving._  
-_Last updated: October 19, 2025 at 8:01 PM_
+_Last updated: 
 _Current commit:_ `a834827`
 
 <p align="center">
@@ -104,3 +104,21 @@ This script updates:
 ```bash
 launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
 ```
+
+### AI Watcher Ops Quickstart
+
+**Local quick run**
+```bash
+scripts/run_local_quick.sh
+```
+
+**Fix GHCR login**
+```bash
+scripts/fix_ghcr_login.sh         # will prompt for GitHub PAT (read:packages)
+```
+
+**RunPod notes**
+```bash
+scripts/runpod_notes.sh
+```
+
