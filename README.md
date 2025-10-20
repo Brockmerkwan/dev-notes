@@ -74,16 +74,16 @@ This script updates:
 
 ### Daily: Log Sentinel
 ```
-[2025-10-19 17:45:19] done
-[2025-10-19 17:45:19] done
-[2025-10-19 17:45:25] start rotation
-[2025-10-19 17:45:25] start rotation
-[2025-10-19 17:45:25] done
-[2025-10-19 17:45:25] done
-[2025-10-19 17:59:40] start rotation
-[2025-10-19 17:59:40] start rotation
 [2025-10-19 17:59:40] done
 [2025-10-19 17:59:40] done
+[2025-10-19 18:00:00] start rotation
+[2025-10-19 18:00:00] start rotation
+[2025-10-19 18:00:00] done
+[2025-10-19 18:00:00] done
+[2025-10-19 18:05:16] start rotation
+[2025-10-19 18:05:16] start rotation
+[2025-10-19 18:05:16] done
+[2025-10-19 18:05:16] done
 ```
 
 ### Weekly: Downloads Tidy
@@ -104,3 +104,42 @@ This script updates:
 ```bash
 launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
 ```
+## Maintenance Snapshot — 2025-10-19 19:10:02 CDT
+
+### LaunchAgents
+-	0	com.brock.maintenance.overview.daily
+-	0	com.brock.logsentinel.daily
+-	0	com.brock.archive.compactor.monthly
+-	0	com.brock.downloads.tidy.weekly
+
+### Recent Logs
+**daily_rotate.log**
+```
+[2025-10-19 17:59:40] done
+[2025-10-19 17:59:40] done
+[2025-10-19 18:00:00] start rotation
+[2025-10-19 18:00:00] start rotation
+[2025-10-19 18:00:00] done
+[2025-10-19 18:00:00] done
+[2025-10-19 18:05:16] start rotation
+[2025-10-19 18:05:16] start rotation
+[2025-10-19 18:05:16] done
+[2025-10-19 18:05:16] done
+```
+**_tidy_weekly.log**
+```
+[2025-10-19 15:47:14] == tidy_weekly start ==
+[2025-10-19 15:47:14] == tidy_weekly done ==
+[2025-10-19 15:56:44] == tidy_weekly start ==
+[2025-10-19 15:56:44] == tidy_weekly done ==
+[2025-10-19 15:59:56] == tidy_weekly start ==
+[2025-10-19 15:59:56] == tidy_weekly done ==
+[2025-10-19 16:00:06] == tidy_weekly start ==
+[2025-10-19 16:00:06] == tidy_weekly done ==
+[2025-10-19 16:19:52] == tidy_weekly start ==
+[2025-10-19 16:19:52] == tidy_weekly done ==
+```
+**_compactor_stdout.log**
+```
+```
+

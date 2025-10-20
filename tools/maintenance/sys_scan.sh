@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Brock Core OS — System Scan + Auto-Fix/Upgrade (macOS)
-# Logs → ~/.local/share/brock/logs
-# Memory append → ~/.local/share/brock/memory.md
-# NEW: JSON summary → ~/.local/share/brock/reports/sys_scan_<ts>.json
+# Logs  → ~/.local/share/brock/logs
+# Memory→ ~/.local/share/brock/memory.md
+# JSON  → ~/.local/share/brock/reports/sys_scan_<ts>.json (+ sys_scan_latest.json)
 
 set -euo pipefail
 
@@ -14,21 +14,20 @@ MEM_FILE="$MEM_DIR/memory.md"
 TS="$(date +%Y%m%d_%H%M%S)"
 LOG="$LOG_DIR/sys_scan_${TS}.log"
 JSON="$REP_DIR/sys_scan_${TS}.json"
-
 mkdir -p "$LOG_DIR" "$REP_DIR"
 [[ -f "$MEM_FILE" ]] || { echo "# 🧠 Brock Core OS — Memory Log" > "$MEM_FILE"; echo >> "$MEM_FILE"; }
 
 # ── Defaults (safe) ───────────────────────────────────────────────────────────
-AUTO_BREW="${AUTO_BREW:-1}"         # brew upgrade
-CLEAN_BREW="${CLEAN_BREW:-1}"       # brew cleanup
-AUTO_PIP="${AUTO_PIP:-1}"           # pip3 --user upgrade
-AUTO_NPM="${AUTO_NPM:-1}"           # npm -g update
-AUTO_GEM="${AUTO_GEM:-0}"           # gem update (off unless brew ruby)
-AUTO_OS="${AUTO_OS:-0}"             # softwareupdate -ia (opt-in)
-AUTO_JAVA="${AUTO_JAVA:-1}"         # install Temurin if no real JDK
-AUTO_RUBY="${AUTO_RUBY:-1}"         # install brew ruby if system ruby < 3
-AUTO_DOCKER_PRUNE="${AUTO_DOCKER_PRUNE:-0}"   # docker system prune -f
-OPEN_MEMORY="${OPEN_MEMORY:-0}"     # open memory file after run (macOS 'open')
+AUTO_BREW="${AUTO_BREW:-1}"
+CLEAN_BREW="${CLEAN_BREW:-1}"
+AUTO_PIP="${AUTO_PIP:-1}"
+AUTO_NPM="${AUTO_NPM:-1}"
+AUTO_GEM="${AUTO_GEM:-0}"
+AUTO_OS="${AUTO_OS:-0}"
+AUTO_JAVA="${AUTO_JAVA:-1}"
+AUTO_RUBY="${AUTO_RUBY:-1}"
+AUTO_DOCKER_PRUNE="${AUTO_DOCKER_PRUNE:-0}"
+OPEN_MEMORY="${OPEN_MEMORY:-0}"
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 has() { command -v "$1" >/dev/null 2>&1; }
@@ -36,10 +35,29 @@ log() { printf "%s\n" "$*" | tee -a "$LOG"; }
 section() { printf "\n## %s\n" "$*" | tee -a "$LOG"; }
 kv() { printf "%-24s %s\n" "$1" "$2" | tee -a "$LOG"; }
 n_lines() { wc -l | awk '{print $1}'; }
-
-# Counters / state (for summary + JSON)
-OUTDATED_CNT=0; CASK_CNT=0; PIP_CNT=0; NPM_CNT=0; GEM_CNT=0
-DISK_WARN=0;    STATUS="ok";  ERRMSG=""
+recount() {
+  if has brew; then
+    OUTDATED="$(brew outdated || true)"; OUTDATED_CNT="$(printf "%s\n" "$OUTDATED" | n_lines)"
+    CASK_OUT="$(brew outdated --cask || true)"; CASK_CNT="$(printf "%s\n" "$CASK_OUT" | sed '/^$/d' | n_lines)"
+  fi
+  if has pip3; then
+    PIP_OUT="$(pip3 list --user --outdated --format=columns 2>/dev/null || true)"
+    PIP_CNT="$(printf "%s\n" "$PIP_OUT" | awk 'NR>2' | n_lines)"
+  fi
+  if has npm; then
+    JSONTMP="$(npm -g outdated --json 2>/dev/null || echo '{}')"; [[ -z "$JSONTMP" || "$JSONTMP" == "null" ]] && JSONTMP="{}"
+    NPM_CNT="$(python3 - <<'PY' <<<"$JSONTMP" 2>/dev/null || echo 0
+import json,sys
+try: d=json.load(sys.stdin); print(0 if not isinstance(d,dict) else len(d))
+except: print(0)
+PY
+)"
+  fi
+  if has gem; then
+    GEM_OUT="$(gem outdated 2>/dev/null || true)"; GEM_CNT="$(printf "%s\n" "$GEM_OUT" | sed '/^$/d' | n_lines)"
+  fi
+}
+OUTDATED_CNT=0; CASK_CNT=0; PIP_CNT=0; NPM_CNT=0; GEM_CNT=0; DISK_WARN=0
 
 echo "== System Scan ${TS} ==" | tee "$LOG"
 
@@ -69,30 +87,27 @@ while read -r line; do
   mnt="$(echo "$line" | awk '{print $NF}')"
   case "$fs" in devfs|map|procfs|overlay) continue;; esac
   [[ "$pct" =~ ^[0-9]+$ ]] || continue
-  if [ "$pct" -ge 95 ]; then
-    kv "Disk pressure" "High on ${mnt} (${pct}%)"
-    DISK_WARN=1
-  fi
+  if [ "$pct" -ge 95 ]; then kv "Disk pressure" "High on ${mnt} (${pct}%)"; DISK_WARN=1; fi
 done < <(df -h | tail -n +2)
 
 # Versions
 section "Toolchain Versions"
-has zsh     && kv "zsh" "$(zsh --version)"
-has bash    && kv "bash" "$(bash --version | head -1)"
-has git     && kv "git" "$(git --version)"
+has zsh && kv "zsh" "$(zsh --version)"
+has bash && kv "bash" "$(bash --version | head -1)"
+has git && kv "git" "$(git --version)"
 has xcode-select && kv "xcode-select" "$(xcode-select -p 2>/dev/null || echo not-installed)"
-has clang   && kv "clang" "$(clang --version | head -1)" || true
+has clang && kv "clang" "$(clang --version | head -1)" || true
 has python3 && kv "python3" "$(python3 --version)"
-has pip3    && kv "pip3" "$(pip3 --version)"
-has node    && kv "node" "$(node -v)"
-has npm     && kv "npm" "$(npm -v)"
-has ruby    && kv "ruby" "$(ruby -v)"
-has gem     && kv "gem" "$(gem --version)"
-has java    && kv "java" "$(java -version 2>&1 | head -1 || echo N/A)"
-has docker  && kv "docker" "$(docker --version 2>/dev/null || echo N/A)"
-has ollama  && kv "ollama" "$(ollama --version 2>/dev/null || echo N/A)"
+has pip3 && kv "pip3" "$(pip3 --version)"
+has node && kv "node" "$(node -v)"
+has npm && kv "npm" "$(npm -v)"
+has ruby && kv "ruby" "$(ruby -v)"
+has gem && kv "gem" "$(gem --version)"
+has java && kv "java" "$(java -version 2>&1 | head -1 || echo N/A)"
+has docker && kv "docker" "$(docker --version 2>/dev/null || echo N/A)"
+has ollama && kv "ollama" "$(ollama --version 2>/dev/null || echo N/A)"
 
-# ── Fix: Java (real JDK check) ────────────────────────────────────────────────
+# ── Java (real JDK check) ─────────────────────────────────────────────────────
 section "Fix: Java (Temurin)"
 if /usr/libexec/java_home -V >/dev/null 2>&1; then
   kv "Java status" "JDK present"
@@ -106,7 +121,7 @@ else
   fi
 fi
 
-# ── Fix: Ruby (brew ruby if system ruby < 3) ──────────────────────────────────
+# ── Ruby (brew ruby if system ruby < 3) ───────────────────────────────────────
 RUBY_MAJ="$(ruby -v 2>/dev/null | awk '{print $2}' | cut -d. -f1 || echo 0)"
 if [[ "$AUTO_RUBY" == "1" && "$RUBY_MAJ" -gt 0 && "$RUBY_MAJ" -lt 3 ]]; then
   section "Fix: Ruby (Homebrew)"
@@ -115,10 +130,7 @@ if [[ "$AUTO_RUBY" == "1" && "$RUBY_MAJ" -gt 0 && "$RUBY_MAJ" -lt 3 ]]; then
     brew install ruby | tee -a "$LOG" || true
     RB_PATH="/opt/homebrew/opt/ruby/bin"
     if [ -d "$RB_PATH" ]; then
-      grep -qF "$RB_PATH" "$HOME/.zshrc" 2>/dev/null || {
-        echo "export PATH=\"$RB_PATH:\$PATH\"" >> "$HOME/.zshrc"
-        kv "Shell" "Appended PATH to ~/.zshrc (open new shell)"
-      }
+      grep -qF "$RB_PATH" "$HOME/.zshrc" 2>/dev/null || { echo "export PATH=\"$RB_PATH:\$PATH\"" >> "$HOME/.zshrc"; kv "Shell" "Appended PATH to ~/.zshrc (open new shell)"; }
     fi
     kv "ruby" "$("$RB_PATH/ruby" -v 2>/dev/null || ruby -v)"
   else
@@ -130,10 +142,8 @@ fi
 section "Homebrew"
 if has brew; then
   log "\$ brew update (quiet)"; brew update >/dev/null 2>&1 || true
-  OUTDATED="$(brew outdated || true)"; OUTDATED_CNT="$(printf "%s\n" "$OUTDATED" | n_lines)"
-  kv "Brew outdated" "$OUTDATED_CNT"; [[ "$OUTDATED_CNT" -gt 0 ]] && echo "$OUTDATED" | tee -a "$LOG"
-  CASK_OUT="$(brew outdated --cask || true)"; CASK_CNT="$(printf "%s\n" "$CASK_OUT" | sed '/^$/d' | n_lines)"
-  kv "Cask outdated" "$CASK_CNT"; [[ "$CASK_CNT" -gt 0 ]] && echo "$CASK_OUT" | tee -a "$LOG"
+  OUTDATED="$(brew outdated || true)"; OUTDATED_CNT="$(printf "%s\n" "$OUTDATED" | n_lines)"; kv "Brew outdated" "$OUTDATED_CNT"; [[ "$OUTDATED_CNT" -gt 0 ]] && echo "$OUTDATED" | tee -a "$LOG"
+  CASK_OUT="$(brew outdated --cask || true)"; CASK_CNT="$(printf "%s\n" "$CASK_OUT" | sed '/^$/d' | n_lines)"; kv "Cask outdated" "$CASK_CNT"; [[ "$CASK_CNT" -gt 0 ]] && echo "$CASK_OUT" | tee -a "$LOG"
   if [[ "$AUTO_BREW" == "1" ]]; then
     section "Homebrew Upgrade"
     log "\$ brew upgrade"; brew upgrade | tee -a "$LOG" || true
@@ -151,8 +161,7 @@ if has softwareupdate; then
   log "\$ softwareupdate --list"
   softwareupdate --list | tee -a "$LOG" || true
   if [[ "$AUTO_OS" == "1" ]]; then
-    log "\$ softwareupdate -ia"
-    softwareupdate -ia | tee -a "$LOG" || true
+    log "\$ softwareupdate -ia"; softwareupdate -ia | tee -a "$LOG" || true
   else
     kv "OS action" "DRY RUN (set AUTO_OS=1 to apply)"
   fi
@@ -162,99 +171,46 @@ fi
 section "Python (pip user)"
 if has pip3; then
   PIP_OUT="$(pip3 list --user --outdated --format=columns 2>/dev/null || true)"
-  PIP_CNT="$(printf "%s\n" "$PIP_OUT" | awk 'NR>2' | n_lines)"
-  kv "pip user outdated" "$PIP_CNT"; [[ "$PIP_CNT" -gt 0 ]] && echo "$PIP_OUT" | tee -a "$LOG"
+  PIP_CNT="$(printf "%s\n" "$PIP_OUT" | awk 'NR>2' | n_lines)"; kv "pip user outdated" "$PIP_CNT"; [[ "$PIP_CNT" -gt 0 ]] && echo "$PIP_OUT" | tee -a "$LOG"
   if [[ "$AUTO_PIP" == "1" && "$PIP_CNT" -gt 0 ]]; then
-    awk 'NR>2 {print $1}' <<<"$PIP_OUT" | while read -r pkg; do
-      log "\$ pip3 install --user -U $pkg"
-      pip3 install --user -U "$pkg" | tee -a "$LOG" || true
-    done
+    awk 'NR>2 {print $1}' <<<"$PIP_OUT" | while read -r pkg; do log "\$ pip3 install --user -U $pkg"; pip3 install --user -U "$pkg" | tee -a "$LOG" || true; done
   else
     kv "pip action" "DRY RUN (set AUTO_PIP=1 to apply)"
   fi
-else
-  kv "pip3" "not installed"
-fi
+else kv "pip3" "not installed"; fi
 
-# ── Node (npm -g) — JSON, portable ───────────────────────────────────────────
+# ── Node (npm -g) — JSON ─────────────────────────────────────────────────────
 section "Node (npm -g)"
 if has npm; then
-  JSON="$(npm -g outdated --json 2>/dev/null || echo '{}')"
-  [[ -z "$JSON" || "$JSON" == "null" ]] && JSON="{}"
-  NPM_CNT="$(python3 - <<'PY' <<<"$JSON" 2>/dev/null || echo 0
+  JSONTMP="$(npm -g outdated --json 2>/dev/null || echo '{}')"; [[ -z "$JSONTMP" || "$JSONTMP" == "null" ]] && JSONTMP="{}"
+  NPM_CNT="$(python3 - <<'PY' <<<"$JSONTMP" 2>/dev/null || echo 0
 import json,sys
-try:
-  data=json.load(sys.stdin)
-  print(0 if not isinstance(data,dict) else len(data))
-except Exception:
-  print(0)
+try: d=json.load(sys.stdin); print(0 if not isinstance(d,dict) else len(d))
+except: print(0)
 PY
-)"
-  kv "npm -g outdated" "$NPM_CNT"
-  [[ "$NPM_CNT" -gt 0 ]] && npm -g outdated 2>/dev/null | tee -a "$LOG" || true
-  if [[ "$AUTO_NPM" == "1" && "$NPM_CNT" -gt 0 ]]; then
-    log "\$ npm -g update"
-    npm -g update | tee -a "$LOG" || true
-  else
-    kv "npm action" "DRY RUN (set AUTO_NPM=1 to apply)"
-  fi
-else
-  kv "npm" "not installed"
-fi
+)"; kv "npm -g outdated" "$NPM_CNT"; [[ "$NPM_CNT" -gt 0 ]] && npm -g outdated 2>/dev/null | tee -a "$LOG" || true
+  if [[ "$AUTO_NPM" == "1" && "$NPM_CNT" -gt 0 ]]; then log "\$ npm -g update"; npm -g update | tee -a "$LOG" || true; else kv "npm action" "DRY RUN (set AUTO_NPM=1 to apply)"; fi
+else kv "npm" "not installed"; fi
 
 # ── Ruby (gems) — cautious ───────────────────────────────────────────────────
 section "Ruby (gems)"
 if has gem; then
-  GEM_OUT="$(gem outdated 2>/dev/null || true)"
-  GEM_CNT="$(printf "%s\n" "$GEM_OUT" | sed '/^$/d' | n_lines)"
-  kv "gem outdated" "$GEM_CNT"; [[ "$GEM_CNT" -gt 0 ]] && echo "$GEM_OUT" | tee -a "$LOG"
+  GEM_OUT="$(gem outdated 2>/dev/null || true)"; GEM_CNT="$(printf "%s\n" "$GEM_OUT" | sed '/^$/d' | n_lines)"; kv "gem outdated" "$GEM_CNT"; [[ "$GEM_CNT" -gt 0 ]] && echo "$GEM_OUT" | tee -a "$LOG"
   RUBY_PATH="$(command -v ruby || echo)"
   if [[ "$AUTO_GEM" == "1" ]] || [[ "$RUBY_PATH" == /opt/homebrew/* ]]; then
-    if [[ "$GEM_CNT" -gt 0 ]]; then
-      log "\$ gem update"
-      gem update | tee -a "$LOG" || true
-    fi
-  else
-    kv "gem action" "SAFE MODE (system Ruby). Set AUTO_GEM=1 or use brew Ruby."
-  fi
-else
-  kv "gem" "not installed"
-fi
+    if [[ "$GEM_CNT" -gt 0 ]]; then log "\$ gem update"; gem update | tee -a "$LOG" || true; fi
+  else kv "gem action" "SAFE MODE (system Ruby). Set AUTO_GEM=1 or use brew Ruby."; fi
+else kv "gem" "not installed"; fi
 
-# ── Optional: Docker prune ────────────────────────────────────────────────────
+# ── Docker prune (optional) ──────────────────────────────────────────────────
 if [[ "$AUTO_DOCKER_PRUNE" == "1" && "$(docker info >/dev/null 2>&1; echo $?)" -eq 0 ]]; then
-  section "Docker"
-  log "\$ docker system prune -f"
-  docker system prune -f | tee -a "$LOG" || true
+  section "Docker"; log "\$ docker system prune -f"; docker system prune -f | tee -a "$LOG" || true
 fi
 
-# ── Recount after upgrades for accurate summary / JSON ────────────────────────
-recount() {
-  if has brew; then
-    OUTDATED="$(brew outdated || true)"; OUTDATED_CNT="$(printf "%s\n" "$OUTDATED" | n_lines)"
-    CASK_OUT="$(brew outdated --cask || true)"; CASK_CNT="$(printf "%s\n" "$CASK_OUT" | sed '/^$/d' | n_lines)"
-  fi
-  if has pip3; then
-    PIP_OUT="$(pip3 list --user --outdated --format=columns 2>/dev/null || true)"
-    PIP_CNT="$(printf "%s\n" "$PIP_OUT" | awk 'NR>2' | n_lines)"
-  fi
-  if has npm; then
-    JSON="$(npm -g outdated --json 2>/dev/null || echo '{}')"; [[ -z "$JSON" || "$JSON" == "null" ]] && JSON="{}"
-    NPM_CNT="$(python3 - <<'PY' <<<"$JSON" 2>/dev/null || echo 0
-import json,sys
-try:
-  d=json.load(sys.stdin); print(0 if not isinstance(d,dict) else len(d))
-except: print(0)
-PY
-)"
-  fi
-  if has gem; then
-    GEM_OUT="$(gem outdated 2>/dev/null || true)"; GEM_CNT="$(printf "%s\n" "$GEM_OUT" | sed '/^$/d' | n_lines)"
-  fi
-}
+# ── Recount for accurate summary/JSON ─────────────────────────────────────────
 recount
 
-# ── Summary block (safe builder) ──────────────────────────────────────────────
+# ── Summary → memory.md ──────────────────────────────────────────────────────
 section "Summary"
 kv "Brew outdated" "${OUTDATED_CNT:-0}"
 kv "Cask outdated" "${CASK_CNT:-0}"
@@ -271,7 +227,6 @@ Next 1–3 actions:
 2) If disk high: sudo du -hxd 1 /Volumes/demoncave | sort -h | tail -n 25
 3) (Optional) Enable macOS updates: AUTO_OS=1
 EOS
-
 SUMMARY="${SUMMARY/__BREW__/${OUTDATED_CNT:-0}}"
 SUMMARY="${SUMMARY/__CASK__/${CASK_CNT:-0}}"
 SUMMARY="${SUMMARY/__PIP__/${PIP_CNT:-0}}"
@@ -300,33 +255,55 @@ SUMMARY="${SUMMARY/__LOG__/$LOG}"
   echo
 } >> "$MEM_FILE"
 
-# ── JSON report for dashboards ────────────────────────────────────────────────
-STATUS="ok"
-[[ "$DISK_WARN" -eq 1 ]] && STATUS="warn"
+# ── JSON report (+ latest symlink) ────────────────────────────────────────────
+STATUS="ok"; [[ "$DISK_WARN" -eq 1 ]] && STATUS="warn"
 cat > "$JSON" <<J
 {
   "timestamp": "$TS",
   "hostname": "$(scutil --get LocalHostName 2>/dev/null || hostname)",
-  "macos": "$(sw_vers -productVersion 2>/dev/null || echo N/A)",
-  "counts": {
-    "brew": $OUTDATED_CNT,
-    "cask": $CASK_CNT,
-    "pip": $PIP_CNT,
-    "npm": $NPM_CNT,
-    "gem": $GEM_CNT
-  },
+  "macos": "$(sw_vers -productVersion 2>/dev/null || echo "N/A")",
+  "counts": { "brew": $OUTDATED_CNT, "cask": $CASK_CNT, "pip": $PIP_CNT, "npm": $NPM_CNT, "gem": $GEM_CNT },
   "disk_warning": $DISK_WARN,
   "status": "$STATUS",
   "log": "$LOG",
   "memory": "$MEM_FILE"
 }
 J
+ln -sf "$JSON" "$REP_DIR/sys_scan_latest.json"
 
-# ── Finalize ──────────────────────────────────────────────────────────────────
-echo
-echo "📝 Log    → $LOG"
-echo "🧠 Memory → $MEM_FILE"
-echo "📊 JSON   → $JSON"
+# ── Final ─────────────────────────────────────────────────────────────────────
+echo; echo "📝 Log    → $LOG"; echo "🧠 Memory → $MEM_FILE"; echo "📊 JSON   → $JSON"
 [[ "$OPEN_MEMORY" == "1" ]] && { open "$MEM_FILE" 2>/dev/null || true; }
 echo "✅ Done."
-exit 0
+
+# --- JSON report + latest symlink (v1.2.1) ---
+if [ -n "${TS:-}" ]; then
+  MEM_DIR="${MEM_DIR:-$HOME/.local/share/brock}"
+  REP_DIR="${REP_DIR:-$MEM_DIR/reports}"
+  mkdir -p "$REP_DIR"
+  JSON="$REP_DIR/sys_scan_${TS}.json"
+
+  STATUS="ok"; [ "${DISK_WARN:-0}" -eq 1 ] && STATUS="warn"
+
+  cat > "$JSON" <<J
+{
+  "timestamp": "$TS",
+  "hostname": "$(scutil --get LocalHostName 2>/dev/null || hostname)",
+  "macos": "$(sw_vers -productVersion 2>/dev/null || echo "N/A")",
+  "counts": {
+    "brew": ${OUTDATED_CNT:-0},
+    "cask": ${CASK_CNT:-0},
+    "pip": ${PIP_CNT:-0},
+    "npm": ${NPM_CNT:-0},
+    "gem": ${GEM_CNT:-0}
+  },
+  "disk_warning": ${DISK_WARN:-0},
+  "status": "$STATUS",
+  "log": "${LOG:-""}",
+  "memory": "${MEM_FILE:-""}"
+}
+J
+
+  ln -sf "$JSON" "$REP_DIR/sys_scan_latest.json"
+  echo "📊 JSON   → $JSON"
+fi
