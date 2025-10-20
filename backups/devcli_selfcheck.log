@@ -1,0 +1,194 @@
+[2025-10-19 16:44:31 CDT] == DevCLI selfcheck start ==
+[2025-10-19 16:44:31 CDT] == DevCLI selfcheck start ==
+[2025-10-19 16:44:31 CDT] Ollama API: {"version":"0.12.6"}
+[2025-10-19 16:44:31 CDT] Ollama API: {"version":"0.12.6"}
+[stream] 405 method not allowed[2025-10-19 16:44:31 CDT] tool: present → devask_h
+[stream] 405 method not allowed[2025-10-19 16:44:31 CDT] tool: present → devteach_h
+[2025-10-19 16:44:31 CDT] tool: present → devask_h
+[2025-10-19 16:44:31 CDT] tool: present → devnote_h
+[2025-10-19 16:44:31 CDT] tool: present → devteach_h
+[2025-10-19 16:44:31 CDT] tool: present → devnote_h
+[2025-10-19 16:44:31 CDT] repo push: SKIPPED (no changes or offline)
+[2025-10-19 16:44:31 CDT] == DevCLI selfcheck done ==
+[2025-10-19 16:44:32 CDT] repo push: OK (session_20251019_164431.md)
+[2025-10-19 16:44:32 CDT] == DevCLI selfcheck done ==
+[2025-10-19 16:46:36 CDT] == DevCLI selfcheck start ==
+[2025-10-19 16:46:36 CDT] Ollama API: {"version":"0.12.6"}
+[stream] {"error":"missing request body"}[2025-10-19 16:46:36 CDT] tool: present → devask_h
+[2025-10-19 16:46:36 CDT] tool: present → devteach_h
+[2025-10-19 16:46:36 CDT] tool: present → devnote_h
+[2025-10-19 16:46:37 CDT] repo push: OK (session_20251019_164636.md)
+[2025-10-19 16:46:37 CDT] == DevCLI selfcheck done ==
+[2025-10-19 16:50:58 CDT] == DevCLI selfcheck start ==
+[2025-10-19 16:50:58 CDT] Ollama API: {"version":"0.12.6"}
+[stream] {"error":"missing request body"}[2025-10-19 16:50:58 CDT] tool: present → devask_h
+[2025-10-19 16:50:58 CDT] tool: present → devteach_h
+[2025-10-19 16:50:58 CDT] tool: present → devnote_h
+[2025-10-19 16:50:58 CDT] repo push: OK (session_20251019_165058.md)
+[2025-10-19 16:50:58 CDT] == DevCLI selfcheck done ==
+[2025-10-19 16:55:50 CDT] == DevCLI selfcheck start ==
+[2025-10-19 16:55:50 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T21:55:53.288045Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T21:55:53.332023Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T21:55:53.375686Z","message":{"role":"assistant","content":" How"},"done":false}
+[stream-gen]  {"error":"model 'llama3.1:8b' not found"}[2025-10-19 16:55:53 CDT] tool: present → devask_h
+[2025-10-19 16:55:53 CDT] tool: present → devteach_h
+[2025-10-19 16:55:53 CDT] tool: present → devnote_h
+[2025-10-19 16:55:54 CDT] repo push: OK (session_20251019_165553.md)
+[2025-10-19 16:55:54 CDT] == DevCLI selfcheck done ==
+[2025-10-19 16:58:50 CDT] == DevCLI selfcheck start ==
+[2025-10-19 16:58:50 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T21:58:50.51528Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T21:58:50.559048Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T21:58:50.602762Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T21:58:51.025591Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T21:58:51.069416Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T21:58:51.113191Z","response":"!","done":false}
+[2025-10-19 16:58:51 CDT] tool: present → devask_h
+[2025-10-19 16:58:51 CDT] tool: present → devteach_h
+[2025-10-19 16:58:51 CDT] tool: present → devnote_h
+[2025-10-19 16:58:52 CDT] repo push: OK (session_20251019_165851.md)
+[2025-10-19 16:58:52 CDT] == DevCLI selfcheck done ==
+[2025-10-19 17:45:40 CDT] == DevCLI selfcheck start ==
+[2025-10-19 17:45:40 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:45:41.242658Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:45:41.287066Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:45:41.331172Z","message":{"role":"assistant","content":" How"},"done":false}
+[2025-10-19 17:45:41 CDT] == DevCLI selfcheck start ==
+[2025-10-19 17:45:41 CDT] Ollama API: {"version":"0.12.6"}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:45:41.7187Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:45:41.763148Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:45:41.807123Z","response":"!","done":false}
+[2025-10-19 17:45:42 CDT] tool: present → devask_h
+[2025-10-19 17:45:42 CDT] tool: present → devteach_h
+[2025-10-19 17:45:42 CDT] tool: present → devnote_h
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:45:42.204382Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:45:42.248726Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:45:42.293114Z","message":{"role":"assistant","content":"!"},"done":false}
+[2025-10-19 17:45:42 CDT] repo push: OK (session_20251019_174542.md)
+[2025-10-19 17:45:42 CDT] == DevCLI selfcheck done ==
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:45:42.708522Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:45:42.752432Z","response":"!","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:45:42.796355Z","response":" How","done":false}
+[2025-10-19 17:45:43 CDT] tool: present → devask_h
+[2025-10-19 17:45:43 CDT] tool: present → devteach_h
+[2025-10-19 17:45:43 CDT] tool: present → devnote_h
+[2025-10-19 17:45:43 CDT] repo push: OK (session_20251019_174543.md)
+[2025-10-19 17:45:43 CDT] == DevCLI selfcheck done ==
+[2025-10-19 17:52:44 CDT] == DevCLI selfcheck start ==
+[2025-10-19 17:52:44 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:52:45.331243Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:52:45.374664Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:52:45.418363Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:52:45.836359Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:52:45.879466Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:52:45.922579Z","response":"!","done":false}
+[2025-10-19 17:52:46 CDT] tool: present → devask_h
+[2025-10-19 17:52:46 CDT] tool: present → devteach_h
+[2025-10-19 17:52:46 CDT] tool: present → devnote_h
+[2025-10-19 17:52:46 CDT] repo push: OK (session_20251019_175246.md)
+[2025-10-19 17:52:46 CDT] == DevCLI selfcheck done ==
+[2025-10-19 17:59:44 CDT] == DevCLI selfcheck start ==
+[2025-10-19 17:59:44 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:59:45.304672Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:59:45.348616Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:59:45.392578Z","message":{"role":"assistant","content":" How"},"done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:59:45.768441Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:59:45.811979Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:59:45.855575Z","response":"!","done":false}
+[2025-10-19 17:59:46 CDT] tool: present → devask_h
+[2025-10-19 17:59:46 CDT] tool: present → devteach_h
+[2025-10-19 17:59:46 CDT] tool: present → devnote_h
+[2025-10-19 17:59:46 CDT] repo push: OK (session_20251019_175946.md)
+[2025-10-19 17:59:46 CDT] == DevCLI selfcheck done ==
+[2025-10-19 17:59:58 CDT] == DevCLI selfcheck start ==
+[2025-10-19 17:59:58 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:59:58.668854Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:59:58.711821Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T22:59:58.755022Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:59:59.170571Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:59:59.213893Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T22:59:59.257348Z","response":"!","done":false}
+[2025-10-19 17:59:59 CDT] tool: present → devask_h
+[2025-10-19 17:59:59 CDT] tool: present → devteach_h
+[2025-10-19 17:59:59 CDT] tool: present → devnote_h
+[2025-10-19 18:00:00 CDT] repo push: OK (session_20251019_175959.md)
+[2025-10-19 18:00:00 CDT] == DevCLI selfcheck done ==
+[2025-10-19 18:05:31 CDT] == DevCLI selfcheck start ==
+[2025-10-19 18:05:31 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T23:05:32.689132Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T23:05:32.732456Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T23:05:32.776021Z","message":{"role":"assistant","content":"!"},"done":false}
+[2025-10-19 18:05:33 CDT] == DevCLI selfcheck start ==
+[2025-10-19 18:05:33 CDT] Ollama API: {"version":"0.12.6"}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T23:05:33.192902Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T23:05:33.238807Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T23:05:33.282566Z","response":"!","done":false}
+[2025-10-19 18:05:33 CDT] tool: present → devask_h
+[2025-10-19 18:05:33 CDT] tool: present → devteach_h
+[2025-10-19 18:05:33 CDT] tool: present → devnote_h
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T23:05:33.675039Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T23:05:33.719829Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-19T23:05:33.763341Z","message":{"role":"assistant","content":" How"},"done":false}
+[2025-10-19 18:05:34 CDT] repo push: OK (session_20251019_180533.md)
+[2025-10-19 18:05:34 CDT] == DevCLI selfcheck done ==
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T23:05:34.13235Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T23:05:34.175564Z","response":"!","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-19T23:05:34.219103Z","response":" How","done":false}
+[2025-10-19 18:05:34 CDT] tool: present → devask_h
+[2025-10-19 18:05:34 CDT] tool: present → devteach_h
+[2025-10-19 18:05:34 CDT] tool: present → devnote_h
+[2025-10-19 18:05:35 CDT] repo push: OK (session_20251019_180534.md)
+[2025-10-19 18:05:35 CDT] == DevCLI selfcheck done ==
+[2025-10-19 19:15:00 CDT] == DevCLI selfcheck start ==
+[2025-10-19 19:15:00 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:15:01.324337Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:15:01.368514Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:15:01.412429Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:15:01.843Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:15:01.886567Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:15:01.930086Z","response":"!","done":false}
+[2025-10-19 19:15:02 CDT] tool: present → devask_h
+[2025-10-19 19:15:02 CDT] tool: present → devteach_h
+[2025-10-19 19:15:02 CDT] tool: present → devnote_h
+[2025-10-19 19:15:03 CDT] repo push: OK (session_20251019_191502.md)
+[2025-10-19 19:15:03 CDT] == DevCLI selfcheck done ==
+[2025-10-19 19:44:38 CDT] == DevCLI selfcheck start ==
+[2025-10-19 19:44:38 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:44:39.265948Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:44:39.310114Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:44:39.35383Z","message":{"role":"assistant","content":" How"},"done":false}
+[2025-10-19 19:44:39 CDT] == DevCLI selfcheck start ==
+[2025-10-19 19:44:39 CDT] Ollama API: {"version":"0.12.6"}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:44:39.73599Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:44:39.780031Z","response":"!","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:44:39.823745Z","response":" How","done":false}
+[2025-10-19 19:44:40 CDT] tool: present → devask_h
+[2025-10-19 19:44:40 CDT] tool: present → devteach_h
+[2025-10-19 19:44:40 CDT] tool: present → devnote_h
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:44:40.178701Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:44:40.223295Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T00:44:40.267379Z","message":{"role":"assistant","content":"!"},"done":false}
+[2025-10-19 19:44:40 CDT] repo push: OK (session_20251019_194440.md)
+[2025-10-19 19:44:40 CDT] == DevCLI selfcheck done ==
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:44:40.682169Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:44:40.726019Z","response":" there","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T00:44:40.769977Z","response":"!","done":false}
+[2025-10-19 19:44:41 CDT] tool: present → devask_h
+[2025-10-19 19:44:41 CDT] tool: present → devteach_h
+[2025-10-19 19:44:41 CDT] tool: present → devnote_h
+[2025-10-19 19:44:42 CDT] repo push: OK (session_20251019_194441.md)
+[2025-10-19 19:44:42 CDT] == DevCLI selfcheck done ==
+[2025-10-20 12:48:56 CDT] == DevCLI selfcheck start ==
+[2025-10-20 12:48:59 CDT] Ollama API: {"version":"0.12.6"}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T17:49:02.228895Z","message":{"role":"assistant","content":" Hello"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T17:49:02.282534Z","message":{"role":"assistant","content":" there"},"done":false}
+[stream-chat] {"model":"mistral:latest","created_at":"2025-10-20T17:49:02.335887Z","message":{"role":"assistant","content":"!"},"done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T17:49:02.864332Z","response":" Hello","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T17:49:02.915093Z","response":"!","done":false}
+[stream-gen]  {"model":"mistral:latest","created_at":"2025-10-20T17:49:02.967463Z","response":" How","done":false}
+[2025-10-20 12:49:03 CDT] tool: present → devask_h
+[2025-10-20 12:49:03 CDT] tool: present → devteach_h
+[2025-10-20 12:49:03 CDT] tool: present → devnote_h
+[2025-10-20 12:49:06 CDT] repo push: OK (session_20251020_124903.md)
+[2025-10-20 12:49:06 CDT] == DevCLI selfcheck done ==

@@ -75,7 +75,6 @@ This script updates:
 ### Daily: Log Sentinel
 ```
 [2025-10-19 18:00:00] done
-[2025-10-19 18:00:00] done
 [2025-10-19 18:05:16] start rotation
 [2025-10-19 18:05:16] start rotation
 [2025-10-19 18:05:16] done
@@ -84,11 +83,11 @@ This script updates:
 [2025-10-19 19:44:26] start rotation
 [2025-10-19 19:44:26] done
 [2025-10-19 19:44:26] done
+[2025-10-20 12:48:56] start rotation
 ```
 
 ### Weekly: Downloads Tidy
 ```
-[2025-10-19 15:47:14] == tidy_weekly start ==
 [2025-10-19 15:47:14] == tidy_weekly done ==
 [2025-10-19 15:56:44] == tidy_weekly start ==
 [2025-10-19 15:56:44] == tidy_weekly done ==
@@ -98,27 +97,10 @@ This script updates:
 [2025-10-19 16:00:06] == tidy_weekly done ==
 [2025-10-19 16:19:52] == tidy_weekly start ==
 [2025-10-19 16:19:52] == tidy_weekly done ==
+[2025-10-20 12:48:56] == tidy_weekly start ==
 ```
 
 ### Quick checks
 ```bash
 launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
 ```
-
-### AI Watcher Ops Quickstart
-
-**Local quick run**
-```bash
-scripts/run_local_quick.sh
-```
-
-**Fix GHCR login**
-```bash
-scripts/fix_ghcr_login.sh         # will prompt for GitHub PAT (read:packages)
-```
-
-**RunPod notes**
-```bash
-scripts/runpod_notes.sh
-```
-

@@ -1,33 +1,61 @@
-#!/bin/bash
-# === update_readme.sh ===
-# Refreshes the Living README metadata, injects updated docs, and pushes changes automatically.
+#!/usr/bin/env bash
+set -euo pipefail
+REPO="$HOME/Projects/devnotes"
+REP="$HOME/.local/share/brock/reports/sys_scan_latest.json"
+[[ -f "$REP" ]] || { echo "[update_readme] no report: $REP"; exit 0; }
 
-set -e
-REPO_DIR="$HOME/Projects/devnotes"
-cd "$REPO_DIR" || exit
+ts=$(jq -r '.timestamp' "$REP")
+brew=$(jq -r '.counts.brew' "$REP")
+cask=$(jq -r '.counts.cask' "$REP")
+pip=$(jq -r '.counts.pip' "$REP")
+npm=$(jq -r '.counts.npm' "$REP")
+gem=$(jq -r '.counts.gem' "$REP")
+status=$(jq -r '.status' "$REP")
 
-timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-commit_hash=$(git rev-parse --short HEAD)
+badge() { # name value color
+  echo "![${1}: ${2}](https://img.shields.io/badge/${1}-${2}-${3}.svg)"
+}
 
-# Update metadata timestamp and commit info
-sed -i '' "s/^_Last updated:.*/_Last updated: ${timestamp}_/" README.md
-sed -i '' "s/^_Current commit:.*/_Current commit:_ \`${commit_hash}\`/" README.md
+cat > "$REPO/README.badges.md" <<MD
+$(badge status "$status" "$([ "$status" = ok ] && echo "brightgreen" || echo "yellow")") \
+$(badge brew "$brew" "$( [ "$brew" = 0 ] && echo brightgreen || echo orange)") \
+$(badge cask "$cask" "$( [ "$cask" = 0 ] && echo brightgreen || echo orange)") \
+$(badge pip "$pip"   "$( [ "$pip"  = 0 ] && echo brightgreen || echo orange)") \
+$(badge npm "$npm"   "$( [ "$npm"  = 0 ] && echo brightgreen || echo orange)") \
+$(badge gem "$gem"   "$( [ "$gem"  = 0 ] && echo brightgreen || echo orange)")
 
-# Auto-refresh Playbooks section
-start_marker="<!--AUTO:PLAYBOOKS_START-->"
-end_marker="<!--AUTO:PLAYBOOKS_END-->"
+_Last scan: \`$ts\`_
+MD
 
-playbooks=$(find docs -type f \( -name '*.md' -o -name '*.pdf' \) -exec basename {} \; | sort | awk '{print "- [", $0, "](docs/" $0 ")"}' | sed 's/ \]/]/g')
+README="$REPO/README.md"
+[[ -f "$README" ]] || { echo -e "# DevNotes\n\n<!-- SYS-BADGES:BEGIN -->\n<!-- SYS-BADGES:END -->" > "$README"; }
 
-awk -v repl="$playbooks" -v start="$start_marker" -v end="$end_marker" '
-  $0 == start {print; print repl; skip=1; next}
-  $0 == end {skip=0}
-  !skip
-' README.md > README.tmp && mv README.tmp README.md
+# Replace block between markers using perl (DOTALL)
+perl -0777 -i -pe '
+  my $badges = do { local $/; open my $fh, q{<}, q{README.badges.md} or die $!; <$fh> };
+  s/(<!--\s*SYS-BADGES:BEGIN\s*-->)(.*?)(<!--\s*SYS-BADGES:END\s*-->)/$1\n$badges\n$3/s
+' "$README"
 
-# Commit and push
-git add README.md
-git commit -m "docs: auto-update living README (${timestamp})" || true
-git push
-
+cd "$REPO"
+git add README.md README.badges.md
+git commit -m "docs(readme): refresh status badges from latest sys_scan ($ts)" >/dev/null || true
+git push >/dev/null || true
 echo "[update_readme] ✅ README updated and pushed."
+
+# --- stamp: update header timestamp + commit every run ---
+REPO="${REPO:-$HOME/Projects/devnotes}"
+NOW_ISO="$(date "+%Y-%m-%d %H:%M:%S")"
+NOW_HUMAN="$(date "+%B %e, %Y at %l:%M %p" | sed 's/  / /g')"   # e.g., October 19, 2025 at 8:01 PM
+GIT_SHA="$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+
+# Case A: plain header style:  Last updated: <...> Current commit: <sha>
+perl -0777 -i -pe '
+  my ($now_h,$sha)=@ENV{qw/NOW_HUMAN GIT_SHA/};
+  s/(^|\n)Last updated:\s*.*?(\s+Current commit:\s*).*$/$1."Last updated: $now_h$2$sha"/ems
+' "$REPO/README.md"
+
+# Case B: italic line: _Last updated: <...>_
+perl -0777 -i -pe '
+  my ($now_h)=@ENV{qw/NOW_HUMAN/};
+  s/(^|\n)_Last updated:\s*.*?_/$1."_Last updated: $now_h_"/ems
+' "$REPO/README.md"
