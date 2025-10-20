@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"\>
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.brock.rssalerts</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/brockmerkwan/Projects/devnotes/tools/alerts/run_rss.sh</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>RSS_CONF</key><string>/Users/brockmerkwan/.brock/rss.yaml</string>
+  </dict>
+
+  <key>StartInterval</key><integer>600</integer>
+  <key>RunAtLoad</key><true/>
+
+  <key>StandardOutPath</key><string>/Users/brockmerkwan/.local/share/brock/logs/rssalerts.out</string>
+  <key>StandardErrorPath</key><string>/Users/brockmerkwan/.local/share/brock/logs/rssalerts.err</string>
+</dict></plist>

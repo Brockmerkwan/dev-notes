@@ -1,0 +1,18 @@
+topic: brock-live-feed        # ntfy topic (same as on your phone)
+min_score: 0.25
+model: mistral:latest
+feeds:
+  - https://hnrss.org/frontpage
+  - https://github.blog/changelog/feed/
+  - https://status.github.com/messages.atom
+  - https://aws.amazon.com/new/feed/
+keywords:
+  - devops
+  - automation
+  - macos
+  - homebrew
+  - ollama
+  - llm
+  - github actions
+  - docker
+  - swift
