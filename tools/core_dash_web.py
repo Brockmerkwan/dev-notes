@@ -72,7 +72,8 @@ def run_action(cmd):
         return sh("launchctl kickstart -k gui/$(id -u)/com.brock.dashboard.http") or "restarted"
     if cmd == "triage":
         tri = os.path.join(DEV, "tools", "error_triage.sh")
-        return sh(f"'{tri}' --scan", timeout=20)
+        _out = sh(f"'{tri}' --scan", timeout=20)
+        return _out if _out.strip() else 'triage: no findings'
     return f"unknown action: {cmd}"
 
 # ---------- Auth ----------
