@@ -1,1 +1,4 @@
 # (paste above content)
+.DS_Store
+*.tmp
+backups/
