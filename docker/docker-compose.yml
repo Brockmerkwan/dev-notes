@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  rsswatcher:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: ai_watcher
+    restart: unless-stopped
+    environment:
+      - RSS_CONF=/app/rss.yaml
+      - DEBUG=1
+    volumes:
+      - ../config/rss.yaml.example:/app/rss.yaml:ro
