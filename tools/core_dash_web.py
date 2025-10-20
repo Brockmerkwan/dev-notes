@@ -5,15 +5,20 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 PORT = int(os.environ.get("CORE_DASH_PORT", "7780"))
 CORE_TOKEN = os.environ.get("CORE_TOKEN", "")
 DEV = os.path.expanduser("~/Projects/devnotes")
+CFG_PATH = os.path.expanduser("~/.config/aiwatcher/config.env")
 
-def sh(cmd):
+# ---------- helpers ----------
+def sh(cmd, timeout=10):
     try:
-        out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, text=True, timeout=10)
+        out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, text=True, timeout=timeout)
         return out.strip()
     except subprocess.CalledProcessError as e:
         return e.output.strip()
     except Exception as e:
         return f"ERR: {e}"
+
+def pspawn(cmd):  # fire-and-forget
+    subprocess.Popen(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def status():
     return {
@@ -25,12 +30,10 @@ def status():
         "git": sh(f"cd {DEV} && git status -sb || echo 'git unavailable'"),
     }
 
-def check_auth(headers):  # Bearer token for all /api/*
+def check_auth(headers):
     return (not CORE_TOKEN) or (headers.get("Authorization","") == f"Bearer {CORE_TOKEN}")
 
-# ---- aiwatcher config helpers ------------------------------------------------
-CFG_PATH = os.path.expanduser("~/.config/aiwatcher/config.env")
-
+# ---------- aiwatcher config I/O ----------
 def read_ai_cfg():
     out = {"exists": os.path.exists(CFG_PATH)}
     if not out["exists"]:
@@ -66,7 +69,7 @@ def write_ai_cfg(payload):
             if k in cur: f.write(f'{k}={cur[k]}\n')
     return True
 
-# ---- HTML (dark buttons fixed) ----------------------------------------------
+# ---------- HTML (dark UI) ----------
 HTML = """<!doctype html>
 <html><head><meta charset='utf-8'><title>Brock Core OS</title>
 <style>
@@ -84,27 +87,27 @@ input{background:var(--panel);color:var(--txt);border:1px solid var(--btnb);bord
 </style>
 <script>
 let token = localStorage.getItem('core_token')||'';
-function setToken(){ token=document.getElementById('t').value.trim(); localStorage.setItem('core_token',token); document.getElementById('toast').textContent='Token set'; setTimeout(()=>toast.textContent='',2000); }
+function setToken(){ token=document.getElementById('t').value.trim(); localStorage.setItem('core_token',token); toast('Token set'); }
 async function call(path,method='GET',body=null){
   const opt={method,headers:{'Authorization':'Bearer '+token}};
   if(body){opt.headers['Content-Type']='application/json'; opt.body=JSON.stringify(body);}
   const r=await fetch(path,opt);
-  if(r.status===401){ document.getElementById('toast').textContent='Unauthorized — set token'; setTimeout(()=>toast.textContent='',3000); return null; }
-  if(!r.ok){ document.getElementById('toast').textContent='HTTP '+r.status; setTimeout(()=>toast.textContent='',3000); return null; }
+  if(r.status===401){ toast('Unauthorized — set token'); return null; }
+  if(!r.ok){ toast('HTTP '+r.status); return null; }
   return await r.json();
 }
+function toast(m){ const el=document.getElementById('toast'); el.textContent=m; setTimeout(()=>el.textContent='',2000); }
 async function reloadNow(){ const j=await call('/api/status'); if(!j) return;
   ts.textContent=j.time; svc.textContent=j.services; watch.textContent=j.watcher; disk.textContent=j.disk; mem.textContent=j.mem; git.textContent=j.git;
 }
-async function runAction(a){ const j=await call('/api/run?cmd='+a); if(j) { document.getElementById('toast').textContent='OK: '+a; setTimeout(()=>toast.textContent='',1500);} reloadNow(); }
+async function runAction(a){ const j=await call('/api/run?cmd='+a); if(j){ toast(j.scheduled?'Scheduled: '+a:'OK: '+a); } reloadNow(); }
 async function loadCfg(){ const j=await call('/api/config/aiwatcher'); if(!j) return;
   en.checked=!!j.NTFY_ENABLED; em.checked=!!j.NTFY_ON_EMPTY; iv.value=j.NTFY_INTERVAL_MIN||30; topic.value=j.NTFY_TOPIC||''; url.value=j.NTFY_URL||'';
 }
 async function saveCfg(){ const p={NTFY_ENABLED:en.checked,NTFY_ON_EMPTY:em.checked,NTFY_INTERVAL_MIN:parseInt(iv.value||'30',10),NTFY_TOPIC:topic.value,NTFY_URL:url.value};
-  const j=await call('/api/config/aiwatcher','POST',p); document.getElementById('toast').textContent = (j&&j.ok)?'Saved':'Save failed'; setTimeout(()=>toast.textContent='',2000);
+  const j=await call('/api/config/aiwatcher','POST',p); toast((j&&j.ok)?'Saved':'Save failed');
 }
-setInterval(reloadNow,15000);
-window.onload=()=>{t.value=token; reloadNow(); if(token) loadCfg();};
+setInterval(reloadNow,15000); window.onload=()=>{t.value=token; reloadNow(); if(token) loadCfg();};
 </script>
 </head><body>
 <h1>🧠 Brock Core OS — Web Dashboard <small id="ts"></small></h1>
@@ -131,6 +134,7 @@ window.onload=()=>{t.value=token; reloadNow(); if(token) loadCfg();};
 </body></html>
 """
 
+# ---------- HTTP handler ----------
 class H(BaseHTTPRequestHandler):
     def _send(self, code, ctype, body):
         self.send_response(code); self.send_header("Content-Type", ctype); self.end_headers()
@@ -148,11 +152,14 @@ class H(BaseHTTPRequestHandler):
             if self.path.startswith("/api/run"):
                 q = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
                 cmd = (q.get("cmd") or [""])[0]
+                if cmd == "restart_web":
+                    # async restart to avoid client disconnect/crash
+                    pspawn("bash -lc 'sleep 0.2; launchctl unload ~/Library/LaunchAgents/com.brock.dashboard.http.plist; launchctl load ~/Library/LaunchAgents/com.brock.dashboard.http.plist'")
+                    self._send(200,"application/json",json.dumps({"ok":True,"scheduled":True,"action":"restart_web"})); return
                 M = {
                     "aiwatch_once": f"{DEV}/tools/aiwatcher.sh --once",
                     "aiwatch_mute": f"{DEV}/tools/aiwatcher.sh --mute",
-                    "sync": f"cd {DEV} && git fetch --all --prune && (git diff --quiet && git diff --cached --quiet && echo 'clean' || (git add -A && git commit -m \"chore(sync): via web api\" && git push && echo 'pushed'))",
-                    "restart_web": "launchctl unload ~/Library/LaunchAgents/com.brock.dashboard.http.plist && launchctl load ~/Library/LaunchAgents/com.brock.dashboard.http.plist && echo 'restarted'",
+                    "sync": f"cd {DEV} && git fetch --all --prune && (git diff --quiet && git diff --cached --quiet && echo clean || (git add -A && git commit -m \"chore(sync): via web api\" && git push && echo pushed))",
                 }
                 shell = M.get(cmd)
                 if not shell:
@@ -168,8 +175,8 @@ class H(BaseHTTPRequestHandler):
         if not self.path.startswith("/api/"): self._send(404,"text/plain","not found"); return
         if not check_auth(self.headers): self._send(401,"application/json",json.dumps({"ok":False,"error":"unauthorized"})); return
         if self.path.startswith("/api/config/aiwatcher"):
-            length = int(self.headers.get("Content-Length","0") or "0")
-            data = self.rfile.read(length) if length else b"{}"
+            l = int(self.headers.get("Content-Length","0") or "0")
+            data = self.rfile.read(l) if l else b"{}"
             try: payload = json.loads(data.decode("utf-8"))
             except: payload = {}
             ok = write_ai_cfg(payload)
