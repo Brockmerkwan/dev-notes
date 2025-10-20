@@ -1,179 +1,141 @@
 #!/usr/bin/env python3
-import os, sys, json, hashlib, subprocess, re
-from pathlib import Path
+import os, sys, time, json, subprocess
+from urllib.parse import urlparse
 import feedparser, requests, yaml
 
-CONF = Path(os.environ.get("RSS_CONF", str(Path.home()/".brock/rss.yaml")))
-STATE_DIR = Path(os.environ.get("RSS_STATE", str(Path.home()/".local/share/brock/rss")))
-STATE_DIR.mkdir(parents=True, exist_ok=True)
-DEBUG = os.getenv("DEBUG") == "1"
-MAX_AI  = int(os.getenv("RSS_MAX_AI", "8"))    # max AI-scored items per feed per run
-MAX_PUSH= int(os.getenv("RSS_MAX_PUSH", "8"))  # max pushes across all feeds per run
-LLM_TIMEOUT = int(os.getenv("RSS_LLM_TIMEOUT", "8"))  # seconds per item
+CONF = os.getenv("RSS_CONF", "/app/rss.yaml")
+MIN_SCORE = float(os.getenv("MIN_SCORE", "0.4"))
+MAX_SEND = int(os.getenv("MAX_SEND", "8"))
+AI_TIMEOUT = int(os.getenv("AI_TIMEOUT", "10"))
+BATCH_MODE = os.getenv("BATCH_MODE", "1") == "1"
 
-def log(*a):
-    if DEBUG: print("[rss]", *a, file=sys.stdout, flush=True)
+def log(msg):
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{ts} | {msg}", flush=True)
 
-def load_conf():
-    with open(CONF, "r") as f:
-        return yaml.safe_load(f)
+def load_conf(path):
+    try:
+        with open(path, "r") as f:
+            return yaml.safe_load(f) or {}
+    except Exception as e:
+        log(f"[rss] conf load err: {e}")
+        return {}
 
-def entry_id(e):
-    raw = (e.get("id") or "") + "|" + (e.get("link") or "") + "|" + (e.get("title") or "")
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+def ntfy(title, body, topic):
+    try:
+        r = requests.post(
+            f"https://ntfy.sh/{topic}",
+            data=body.encode("utf-8"),
+            headers={"Title": title, "Priority": "5"},
+            timeout=10
+        )
+        log(f"[rss] ntfy status {r.status_code}")
+    except Exception as e:
+        log(f"[rss] ntfy err: {e}")
 
-def seen_path(feed_url):
-    h = hashlib.sha256(feed_url.encode("utf-8")).hexdigest()[:16]
-    return STATE_DIR / f"seen_{h}.json"
+def ollama_json(model, prompt, host):
+    try:
+        env = os.environ.copy()
+        if host:
+            env["OLLAMA_HOST"] = host
+        res = subprocess.run(
+            ["ollama", "run", model, prompt],
+            capture_output=True, text=True, timeout=AI_TIMEOUT, env=env
+        )
+        out = res.stdout.strip()
+        cand = out.splitlines()[-1] if out else "{}"
+        return json.loads(cand)
+    except subprocess.TimeoutExpired:
+        log("[rss] ollama timeout")
+        return {}
+    except FileNotFoundError:
+        log("[rss] ollama err: [Errno 2] No such file or directory: 'ollama'")
+        return {}
+    except Exception as e:
+        log(f"[rss] ollama err: {e}")
+        return {}
 
-def load_seen(p):
-    if p.exists():
-        try: return set(json.loads(p.read_text()))
-        except: return set()
-    return set()
-
-def save_seen(p, s):
-    p.write_text(json.dumps(sorted(list(s))))
-
-PROMPT = """You are Brock Core OS.
-Respond with ONLY a single JSON object on one line. No prose, no code fences.
-Keys: score (0..1), title, one_liner (<=20 words), reason (<=15 words).
-Consider: devops, automation, macOS, Homebrew, ollama, LLM, GitHub Actions, Docker, Swift.
-Item:
-TITLE: {title}
-LINK: {link}
-SUMMARY: {summary}
+PROMPT = """You are a filter for DevOps/macOS/automation news. Return compact JSON:
+{"score":0..1,"title":"...", "one_liner":"...", "reason":"..."}
+Evaluate ONLY this item:
+Title: {title}
+Link: {link}
+Summary: {summary}
+Keywords: devops, automation, macOS, homebrew, ollama, llm, github actions, docker, swift
 """
 
-# tolerant JSON finder
-def extract_json_object(text):
-    line0 = text.strip().splitlines()[0].strip()
-    try: return json.loads(line0)
-    except: pass
-    st=[]
-    for i,ch in enumerate(text):
-        if ch=='{': st.append(i)
-        elif ch=='}' and st:
-            j=st.pop()
-            if not st:
-                chunk = text[j:i+1]
-                try: return json.loads(chunk)
-                except:
-                    chunk2 = chunk.replace("True","true").replace("False","false").replace("None","null")
-                    try: return json.loads(chunk2)
-                    except: pass
-    return None
+def quick_score(title, summary, keywords):
+    t = (title or "").lower(); s = (summary or "").lower()
+    hits = sum(1 for k in keywords if k.lower() in t or k.lower() in s)
+    return min(1.0, hits/3.0)
 
-def ollama_json(model, prompt):
-    try:
-        res = subprocess.run(
-            ["ollama", "run", model],
-            input=prompt.encode("utf-8"),
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            timeout=LLM_TIMEOUT
-        )
-        out = res.stdout.decode("utf-8", errors="ignore").strip()
-        if DEBUG: log("ollama out:", (out[:200]+"..." if len(out)>200 else out).replace("\n"," "))
-        js = extract_json_object(out)
-        if isinstance(js, dict) and "score" in js:
-            return js
-    except subprocess.TimeoutExpired:
-        log("ollama timeout")
-    except Exception as e:
-        log("ollama err:", str(e))
-    return {"score":0.0,"title":"","one_liner":"N/A","reason":"AI error"}
-
-# NO-AI keyword scorer
-def score_noai(title, summary, kws):
-    text = f"{title} {summary}".lower()
-    hits = sum(1 for k in kws if re.search(r'\b'+re.escape(k.lower())+r'\b', text))
-    score = min(1.0, hits / max(1, len(kws)) * 3.0)
-    one = (title or "Relevant item")
-    reason = f"{hits} keyword hit(s)"
-    return {"score": score, "title": title, "one_liner": one[:200], "reason": reason[:120]}
-
-# ASCII header sanitizer (HTTP/1.1 headers are ISO-8859-1)
-def ascii_sanitize(s: str) -> str:
-    if not s: return ""
-    repl = {
-        "\u2013":"-", "\u2014":"-", "\u2018":"'", "\u2019":"'", "\u201c":'"', "\u201d":'"',
-        "\u00a0":" ", "\u2026":"...", "\u200b":""
-    }
-    for k,v in repl.items():
-        s = s.replace(k,v)
-    s = re.sub(r"[^\x20-\x7E]", "", s)  # drop non-ASCII
-    return s
-
-def notify_ntfy(topic, title, body, link=None, tags=None, priority=3):
-    url = f"https://ntfy.sh/{topic}"
-    h_title = ascii_sanitize((title or "RSS Item"))[:180]
-    headers = {"Title": h_title, "Priority": str(priority)}
-    if tags: headers["Tags"] = ",".join(tags)
-    if link: headers["Click"] = link  # Click may be non-ASCII-safe but URL should be ASCII
-    try:
-        r = requests.post(url, data=body.encode("utf-8"), headers=headers, timeout=15)
-        if DEBUG: log("ntfy status", r.status_code)
-    except Exception as e:
-        log("ntfy err:", str(e))
+def summarize_for_batch(items):
+    lines = []
+    for it in items:
+        host = urlparse(it['link']).netloc
+        lines.append(f"• {it['title']} – {it['one_liner']} ({host})\n{it['link']}")
+    body = "\n\n".join(lines)
+    if len(body) > 4000:
+        body = body[:3800] + "\n…(truncated)"
+    return "AI Watcher: {} picks".format(len(items)), body
 
 def main():
-    cfg = load_conf()
-    topic = cfg.get("topic")
+    cfg = load_conf(CONF)
+    feeds = cfg.get("feeds", ["https://hnrss.org/frontpage"])
+    topic = cfg.get("topic", "brock-live-feed")
     model = cfg.get("model", "llama3.1:latest")
-    min_score = float(cfg.get("min_score", 0.6))
-    kws = cfg.get("keywords", [])
-    feeds = cfg.get("feeds", [])
-    FORCE = os.getenv("RSS_FORCE") == "1"
-    NOAI  = os.getenv("RSS_NOAI") == "1"
-
-    if not topic or not feeds:
-        print("config missing 'topic' or 'feeds'", file=sys.stderr); sys.exit(1)
+    keywords = cfg.get("keywords", ["devops","automation","macos","homebrew","ollama","llm","github actions","docker","swift"])
+    ollama_host = os.getenv("OLLAMA_HOST", cfg.get("ollama_host", ""))
 
     sent = 0
+    picked = []
+
     for feed in feeds:
-        log("feed:", feed)
-        if sent >= MAX_PUSH:
-            log("push cap reached"); break
+        log(f"[rss] feed: {feed}")
+        try:
+            fp = feedparser.parse(feed)
+        except Exception as e:
+            log(f"[rss] feed err: {e}")
+            continue
 
-        fp = seen_path(feed)
-        seen = load_seen(fp)
-        d = feedparser.parse(feed)
-        new_seen = set(seen)
+        for entry in fp.entries[:20]:
+            if sent >= MAX_SEND and not BATCH_MODE:
+                log("[rss] push cap reached")
+                break
+            title = entry.get("title","").strip()
+            link = entry.get("link","").strip()
+            summ = (entry.get("summary") or entry.get("description") or "").strip()
 
-        ai_count = 0
-        for e in d.entries[:30]:
-            if sent >= MAX_PUSH: break
-            eid = entry_id(e)
-            if (not FORCE) and (eid in seen):
-                continue
+            js = {}
+            if model:
+                js = ollama_json(model, PROMPT.format(title=title, link=link, summary=summ), ollama_host)
+            score = js.get("score")
+            if score is None:
+                score = quick_score(title, summ, keywords)
 
-            title = (e.get("title") or "").strip()
-            link  = (e.get("link") or "").strip()
-            summ  = (e.get("summary") or e.get("description") or "").strip().replace("\n"," ")[:800]
+            log(f"[rss] score: {score} | {title}")
 
-            if NOAI:
-                js = score_noai(title, summ, kws)
-            else:
-                if ai_count >= MAX_AI:
-                    log("ai cap reached on feed"); break
-                js = ollama_json(model, PROMPT.format(title=title, link=link, summary=summ))
-                ai_count += 1
+            if score >= MIN_SCORE:
+                item = {
+                    "title": (js.get("title") or title),
+                    "one_liner": js.get("one_liner") or (summ[:140] + ("…" if len(summ)>140 else "")),
+                    "reason": js.get("reason",""),
+                    "link": link
+                }
+                if BATCH_MODE:
+                    picked.append(item)
+                else:
+                    ntfy(item["title"], f"{item['one_liner']}\n{item['link']}", topic)
+                    sent += 1
 
-            score = float(js.get("score", 0.0))
-            one   = (js.get("one_liner") or "").strip()[:200]
-            reason= (js.get("reason") or "").strip()[:120]
-            if DEBUG: log("score:", score, "|", title[:80])
+        if not BATCH_MODE and sent >= MAX_SEND:
+            log("[rss] ai cap reached on feed")
 
-            if score >= min_score:
-                prio = 4 if score >= 0.8 else 3
-                body = f"{one}\n\nReason: {reason}\nScore: {score:.2f}"
-                notify_ntfy(topic, title or "RSS Item", body, link=link, tags=["rss","ai"], priority=prio)
-                sent += 1
-
-            new_seen.add(eid)
-
-        if not FORCE:
-            save_seen(fp, new_seen)
+    if BATCH_MODE and picked:
+        picked = picked[:MAX_SEND]
+        title, body = summarize_for_batch(picked)
+        ntfy(title, body, topic)
+        sent = len(picked)
 
     print(f"sent={sent}")
 
