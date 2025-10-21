@@ -1,23 +1,14 @@
-#!/usr/bin/env bash
-# --- Safety Header: Bash Compatibility Check ---
-if [ -z "$BASH_VERSION" ] || [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
-  echo "⚠️  Incompatible shell or old Bash detected."
-  echo "   → Use ./core.sh instead of bash core.sh for full compatibility."
-  exit 1
-fi
-if [ "$(ps -p $$ -o comm=)" != "bash" ]; then
-  exec /usr/bin/env bash "$0" "$@"
-fi
-# --- End Safety Header ---
-# Brock Core OS — main menu
+#!/usr/bin/env zsh
 set -euo pipefail
-
-STATE_DIR="${HOME}/.local/state/brock_core"
-LOG="${STATE_DIR}/core.log"
-mkdir -p "${STATE_DIR}"
-
-log(){ printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
-
+# --- Core Boot Header (rebuilt) ---
+function start_progress() {
+  local msg="$1"; echo "⏳ $msg ..."
+}
+function stop_progress() {
+  local msg="$1"; echo "✅ $msg (done)"
+}
+start_progress "Core Boot"
+# -----------------------------------
 require(){
   command -v "$1" >/dev/null 2>&1 || { log "ERR: missing dep: $1"; return 1; }
 }
@@ -28,6 +19,7 @@ OLLAMA_DIR="${PROJECT_DIR}/local_ai/ollama"
 MODEFILE="${OLLAMA_DIR}/Modelfile"
 
 health_check(){
+  start_progress "Health Check"
   log "== Health Check =="
   echo "• OS: $(sw_vers -productVersion 2>/dev/null || uname -a)"
   echo "• Shell: $SHELL"
@@ -43,9 +35,11 @@ health_check(){
     echo "• ollama: not installed"
   fi
   log "OK health_check done"
+  stop_progress "Health Check"
 }
 
 devnotes_sync(){
+  start_progress "DevNotes Sync"
   log "== DevNotes Sync =="
   require git || return 1
   cd "$PROJECT_DIR"
@@ -60,6 +54,7 @@ devnotes_sync(){
   else
     log "No changes to push"
   fi
+  stop_progress "DevNotes Sync"
 }
 
 open_prompt_path(){
@@ -74,6 +69,7 @@ open_prompt_path(){
 }
 
 ollama_build_model(){
+  start_progress "Ollama Build"
   log "== Build Ollama model: brock-core:latest =="
   require ollama || return 1
   mkdir -p "$OLLAMA_DIR"
@@ -92,9 +88,11 @@ EOM
   echo "Test:"
   ollama run brock-core:latest "Say READY if system prompt is active."
   log "OK ollama build"
+  stop_progress "Ollama Build"
 }
 
 downloads_tidy_now(){
+  start_progress "Downloads Tidy"
   log "== Downloads Tidy Now =="
   SRC="${HOME}/Downloads"
   DST="${HOME}/Archive/Downloads/$(date +%Y-%m)"
@@ -102,9 +100,11 @@ downloads_tidy_now(){
   # move non-hidden files older than 2 days; skip .dmg currently in use
   find "$SRC" -maxdepth 1 -type f -mtime +2 -not -name ".*" -print -exec mv -n "{}" "$DST"/ \;
   log "Moved old files to $DST"
+  stop_progress "Downloads Tidy"
 }
 
 install_tidy_launchagent(){
+  start_progress "Install LaunchAgent"
   log "== Install LaunchAgent: weekly downloads tidy =="
   PL="$HOME/Library/LaunchAgents/com.brock.downloads_tidy.plist"
   mkdir -p "$(dirname "$PL")"
@@ -136,6 +136,7 @@ PLIST
   launchctl unload "$PL" 2>/dev/null || true
   launchctl load "$PL"
   launchctl list | grep -q com.brock.downloads_tidy && log "Agent loaded" || log "WARN: Agent not listed"
+  stop_progress "Install LaunchAgent"
 }
 
 usage(){
@@ -205,3 +206,6 @@ case "${1-}" in
 esac
 
 
+
+stop_progress "Core Boot"
+stop_progress "Core Boot"
