@@ -174,6 +174,8 @@ case "${1-}" in
   --ollama-build) ollama_build_model ;;
   *) usage ;;
 esac  # fixed placement
+  *) usage ;;
+esac  # fixed placement
   --tidy-now) downloads_tidy_now ;;
   --install-tidy) install_tidy_launchagent ;;
   "" ) menu ;;
