@@ -181,13 +181,6 @@ case "${1-}" in
     ;;
   *) usage ;;
 esac
-  --tidy-now) downloads_tidy_now ;;
-  --install-tidy) install_tidy_launchagent ;;
-  "" ) menu ;;
-  * ) usage ;;
-  --cloudsync)
-    echo "🌩️ Running Cloud Sync Verification..."
-    bash tools/phase_2.5_cloudsync.sh
     ;;
 esac
 
