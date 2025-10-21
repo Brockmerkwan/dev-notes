@@ -162,6 +162,10 @@ menu(){
       6) install_tidy_launchagent ;;
       7) exit 0 ;;
       *) echo "Invalid";;
+  --cloudsync)
+    echo "🌩️ Running Cloud Sync Verification..."
+    bash tools/phase_2.5_cloudsync.sh
+    ;;
     esac
   done
 }
@@ -176,10 +180,10 @@ case "${1-}" in
   --install-tidy) install_tidy_launchagent ;;
   "" ) menu ;;
   * ) usage ;;
-esac
-
-
   --cloudsync)
     echo "🌩️ Running Cloud Sync Verification..."
     bash tools/phase_2.5_cloudsync.sh
     ;;
+esac
+
+
