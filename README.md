@@ -50,3 +50,10 @@ echo "✅ README refreshed and pushed to GitHub."
 <sub>Built with ❤️ using Zsh · macOS · GitHub Automation · AI Tooling</sub>  
 <sup>© 2025 Brock Merkwan · MIT License · All systems operational</sup>
 </div>
+
+---
+<div align="center">
+💠 **Brock Core OS** — DevOps & Automation Playground  
+<sub>Built with ❤️ using Zsh · macOS · GitHub Automation · AI Tooling</sub>  
+<sup>© 2025 Brock Merkwan · MIT License · All systems operational</sup>
+</div>
