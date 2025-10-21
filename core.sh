@@ -206,3 +206,13 @@ set +H  # disable history expansion for zsh
 
 
 }
+
+# --- auto-closure (8 missing) ---
+
+
+
+
+
+
+
+}
