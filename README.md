@@ -1,3 +1,6 @@
+## Brock Learning Profile
+- See: profiles/brock_learning_profile.md
+
 # 🧠 **DevNotes: Living README**  
 > _Neon‑Terminal Edition – automated, adaptive, and always evolving._  
 _Last updated: 
