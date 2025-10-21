@@ -178,3 +178,8 @@ case "${1-}" in
   * ) usage ;;
 esac
 
+
+  --cloudsync)
+    echo "🌩️ Running Cloud Sync Verification..."
+    bash tools/phase_2.5_cloudsync.sh
+    ;;
