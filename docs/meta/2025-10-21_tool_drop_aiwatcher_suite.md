@@ -1,10 +1,10 @@
-# Meta Tool Drop — AI Watcher suite: ctl + sanitizers + allowlist
+# Meta Tool Drop — Dashboard hotfix
 **Date:** 2025-10-21  
-**Branch:** `release/core-web`  
-**Summary:** Install + control + cleanup for aiwatcher; launchd sweep; allowlist guard; documented notes + changelog
+**Branch:** `main`  
+**Summary:** fix rotate_token parser
 
 ## Files included
-- `tools/aiwatcherctl.sh`  (sha256: `f584f8b14f9438f71cebb05ff8cacda117b601ab72058e11f560424da6f957e4`, 5339B)\n- `tools/svc_sanitize.sh`  (sha256: `01c4402491e6784516737eaa02ecbeaac687aa8940b53eca1677ee394b521d78`, 6121B)\n- `tools/brock_launch_nuke_v2.sh`  (sha256: `d370c86516d18bfee084befae64afa73057a2dcc53b1f3ad195a6805e36f1aae`, 2131B)\n- `tools/launch_enforce_allowlist.sh`  (sha256: `c37daf3254c0b47b4826f001ebf976c879cc517002130a00b06d8b2c3e77630c`, 1268B)\n
+- `tools/dashboard_server/static/index.html`  (sha256: `578c105aab0675ab519ccad10498d65af2f2ba200bbe9a9debbd7ce61cb27c0b`, 6102B)\n
 
 ## Rationale
 - Consolidate AI Watcher control (start/stop/status/enable/disable; menu-driven; dry-run).
