@@ -37,22 +37,20 @@ echo "✅ README refreshed and pushed to GitHub."
 [![Topic: Zsh](https://img.shields.io/badge/Topic-Zsh-0F0F0F?style=for-the-badge)](https://github.com/topics/zsh)
 [![Topic: macOS](https://img.shields.io/badge/Topic-macOS-0F0F0F?style=for-the-badge)](https://github.com/topics/macos)
 <div align="center">
-<sub>Built with ❤️ using Zsh · macOS · GitHub Automation · AI Tooling</sub>  
-<sup>© 2025 Brock Merkwan · MIT License · All systems operational</sup>
 </div>
 ```
 
 ---
 
 <div align="center">
-<sub>Built with ❤️ using Zsh · macOS · GitHub Automation · AI Tooling</sub>  
-<sup>© 2025 Brock Merkwan · MIT License · All systems operational</sup>
 </div>
 
 ---
 <div align="center">
-<sub>Built with ❤️ using Zsh · macOS · GitHub Automation · AI Tooling</sub>  
-<sup>© 2025 Brock Merkwan · MIT License · All systems operational</sup>
+</div>
+
+---
+<div align="center">
 </div>
 
 ---
