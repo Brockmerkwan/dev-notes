@@ -168,11 +168,12 @@ menu(){
 
 # CLI switchboard
 case "${1-}" in
-esac  # close case block from line 170
   --health) health_check ;;
   --sync) devnotes_sync ;;
   --prompt) open_prompt_path ;;
   --ollama-build) ollama_build_model ;;
+  *) usage ;;
+esac  # fixed placement
   --tidy-now) downloads_tidy_now ;;
   --install-tidy) install_tidy_launchagent ;;
   "" ) menu ;;
