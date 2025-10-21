@@ -27,3 +27,7 @@
 ### 2025-10-21 — Meta: AI Watcher suite: ctl + sanitizers + allowlist
 - Install + control + cleanup for aiwatcher; launchd sweep; allowlist guard; documented notes + changelog
 - Files: tools/aiwatcherctl.sh tools/svc_sanitize.sh tools/brock_launch_nuke_v2.sh tools/launch_enforce_allowlist.sh 
+
+### 2025-10-21 — Meta: Dashboard hotfix
+- fix rotate_token parser
+- Files: tools/dashboard_server/static/index.html 
