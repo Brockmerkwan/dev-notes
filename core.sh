@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-set +H  # disable history expansion for Zsh
+# --- Safety Header: Bash Compatibility Check ---
+if [ -z "$BASH_VERSION" ] || [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
+  echo "⚠️  Incompatible shell or old Bash detected."
+  echo "   → Use ./core.sh instead of bash core.sh for full compatibility."
+  exit 1
+fi
+if [ "$(ps -p $$ -o comm=)" != "bash" ]; then
+  exec /usr/bin/env bash "$0" "$@"
+fi
+# --- End Safety Header ---
 # Brock Core OS — main menu
 set -euo pipefail
 
@@ -11,6 +20,7 @@ log(){ printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
 
 require(){
   command -v "$1" >/dev/null 2>&1 || { log "ERR: missing dep: $1"; return 1; }
+}
 
 PROJECT_DIR="${HOME}/Projects/devnotes"
 PROMPT_FILE="${PROJECT_DIR}/system_prompts/brock_core_os_v3.md"
@@ -31,7 +41,9 @@ health_check(){
     (ollama ps || true)
   else
     echo "• ollama: not installed"
+  fi
   log "OK health_check done"
+}
 
 devnotes_sync(){
   log "== DevNotes Sync =="
@@ -47,6 +59,8 @@ devnotes_sync(){
     log "Pushed changes"
   else
     log "No changes to push"
+  fi
+}
 
 open_prompt_path(){
   log "== System Prompt Path =="
@@ -56,6 +70,8 @@ open_prompt_path(){
     (open -R "$PROMPT_FILE" 2>/dev/null || true)
   else
     log "WARN: prompt file missing: $PROMPT_FILE"
+  fi
+}
 
 ollama_build_model(){
   log "== Build Ollama model: brock-core:latest =="
@@ -71,10 +87,12 @@ Paste the compact v3 prompt here if you want a self-contained Modelfile.
 PARAMETER temperature 0.4
 EOM
     log "Created Modelfile scaffold at $MODEFILE"
+  fi
   ollama create brock-core:latest -f "$MODEFILE"
   echo "Test:"
   ollama run brock-core:latest "Say READY if system prompt is active."
   log "OK ollama build"
+}
 
 downloads_tidy_now(){
   log "== Downloads Tidy Now =="
@@ -84,6 +102,7 @@ downloads_tidy_now(){
   # move non-hidden files older than 2 days; skip .dmg currently in use
   find "$SRC" -maxdepth 1 -type f -mtime +2 -not -name ".*" -print -exec mv -n "{}" "$DST"/ \;
   log "Moved old files to $DST"
+}
 
 install_tidy_launchagent(){
   log "== Install LaunchAgent: weekly downloads tidy =="
@@ -117,6 +136,7 @@ PLIST
   launchctl unload "$PL" 2>/dev/null || true
   launchctl load "$PL"
   launchctl list | grep -q com.brock.downloads_tidy && log "Agent loaded" || log "WARN: Agent not listed"
+}
 
 usage(){
   cat <<USG
@@ -130,6 +150,7 @@ Usage:
   $0 --tidy-now      # run downloads tidy once
   $0 --install-tidy  # install weekly LaunchAgent
 USG
+}
 
 menu(){
   PS3="Select: "
@@ -165,6 +186,7 @@ menu(){
     ;;
     esac
   done
+}
 
 # CLI switchboard
 case "${1-}" in
@@ -174,45 +196,12 @@ case "${1-}" in
   --ollama-build) ollama_build_model ;;
   --tidy-now) downloads_tidy_now ;;
   --install-tidy) install_tidy_launchagent ;;
-  "") menu ;;
+  "" ) menu ;;
+  * ) usage ;;
   --cloudsync)
     echo "🌩️ Running Cloud Sync Verification..."
     bash tools/phase_2.5_cloudsync.sh
     ;;
-  *) usage ;;
-esac
-    ;;
 esac
 
 
-set +H  # disable history expansion for zsh
-set +H  # disable history expansion for zsh
-
-# --- auto-fix: balance unclosed braces ---
-
-
-
-
-
-
-
-
-}
-
-
-
-
-
-
-
-
-}
-
-
-
-
-
-
-
-
-}
