@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set +H  # disable history expansion for Zsh
 # --- Safety Header: Bash Compatibility Check ---
 if [ -z "$BASH_VERSION" ] || [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
   echo "⚠️  Incompatible shell or old Bash detected."
