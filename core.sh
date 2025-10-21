@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+# --- Safety Header: Bash Compatibility Check ---
+if [ -z "$BASH_VERSION" ] || [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
+  echo "⚠️  Incompatible shell or old Bash detected."
+  echo "   → Use ./core.sh instead of bash core.sh for full compatibility."
+  exit 1
+fi
+if [ "$(ps -p $$ -o comm=)" != "bash" ]; then
+  exec /usr/bin/env bash "$0" "$@"
+fi
+# --- End Safety Header ---
 # Brock Core OS — main menu
 set -euo pipefail
 
