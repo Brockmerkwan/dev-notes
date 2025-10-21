@@ -185,3 +185,14 @@ esac
 
 set +H  # disable history expansion for zsh
 set +H  # disable history expansion for zsh
+
+# --- auto-fix: balance unclosed braces ---
+
+
+
+
+
+
+
+
+}
