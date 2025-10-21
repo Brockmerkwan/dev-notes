@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 set +H  # disable history expansion for Zsh
-  echo "⚠️  Incompatible shell or old Bash detected."
-  echo "   → Use ./core.sh instead of bash core.sh for full compatibility."
-  exit 1
-fi
-if [ "$(ps -p $$ -o comm=)" != "bash" ]; then
-fi
 # Brock Core OS — main menu
 set -euo pipefail
 
@@ -38,7 +32,6 @@ health_check(){
     (ollama ps || true)
   else
     echo "• ollama: not installed"
-  fi
   log "OK health_check done"
 }
 
@@ -56,7 +49,6 @@ devnotes_sync(){
     log "Pushed changes"
   else
     log "No changes to push"
-  fi
 }
 
 open_prompt_path(){
@@ -67,7 +59,6 @@ open_prompt_path(){
     (open -R "$PROMPT_FILE" 2>/dev/null || true)
   else
     log "WARN: prompt file missing: $PROMPT_FILE"
-  fi
 }
 
 ollama_build_model(){
@@ -84,7 +75,6 @@ Paste the compact v3 prompt here if you want a self-contained Modelfile.
 PARAMETER temperature 0.4
 EOM
     log "Created Modelfile scaffold at $MODEFILE"
-  fi
   ollama create brock-core:latest -f "$MODEFILE"
   echo "Test:"
   ollama run brock-core:latest "Say READY if system prompt is active."
