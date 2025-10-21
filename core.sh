@@ -168,6 +168,7 @@ menu(){
 
 # CLI switchboard
 case "${1-}" in
+esac  # close case block from line 170
   --health) health_check ;;
   --sync) devnotes_sync ;;
   --prompt) open_prompt_path ;;
@@ -197,7 +198,6 @@ set +H  # disable history expansion for zsh
 
 }
 
-# --- auto-closure (8 missing) ---
 
 
 
@@ -207,7 +207,6 @@ set +H  # disable history expansion for zsh
 
 }
 
-# --- auto-closure (8 missing) ---
 
 
 
