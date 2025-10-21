@@ -11,7 +11,6 @@ log(){ printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
 
 require(){
   command -v "$1" >/dev/null 2>&1 || { log "ERR: missing dep: $1"; return 1; }
-}
 
 PROJECT_DIR="${HOME}/Projects/devnotes"
 PROMPT_FILE="${PROJECT_DIR}/system_prompts/brock_core_os_v3.md"
@@ -33,7 +32,6 @@ health_check(){
   else
     echo "• ollama: not installed"
   log "OK health_check done"
-}
 
 devnotes_sync(){
   log "== DevNotes Sync =="
@@ -49,7 +47,6 @@ devnotes_sync(){
     log "Pushed changes"
   else
     log "No changes to push"
-}
 
 open_prompt_path(){
   log "== System Prompt Path =="
@@ -59,7 +56,6 @@ open_prompt_path(){
     (open -R "$PROMPT_FILE" 2>/dev/null || true)
   else
     log "WARN: prompt file missing: $PROMPT_FILE"
-}
 
 ollama_build_model(){
   log "== Build Ollama model: brock-core:latest =="
@@ -79,7 +75,6 @@ EOM
   echo "Test:"
   ollama run brock-core:latest "Say READY if system prompt is active."
   log "OK ollama build"
-}
 
 downloads_tidy_now(){
   log "== Downloads Tidy Now =="
@@ -89,7 +84,6 @@ downloads_tidy_now(){
   # move non-hidden files older than 2 days; skip .dmg currently in use
   find "$SRC" -maxdepth 1 -type f -mtime +2 -not -name ".*" -print -exec mv -n "{}" "$DST"/ \;
   log "Moved old files to $DST"
-}
 
 install_tidy_launchagent(){
   log "== Install LaunchAgent: weekly downloads tidy =="
@@ -123,7 +117,6 @@ PLIST
   launchctl unload "$PL" 2>/dev/null || true
   launchctl load "$PL"
   launchctl list | grep -q com.brock.downloads_tidy && log "Agent loaded" || log "WARN: Agent not listed"
-}
 
 usage(){
   cat <<USG
@@ -137,7 +130,6 @@ Usage:
   $0 --tidy-now      # run downloads tidy once
   $0 --install-tidy  # install weekly LaunchAgent
 USG
-}
 
 menu(){
   PS3="Select: "
@@ -173,7 +165,6 @@ menu(){
     ;;
     esac
   done
-}
 
 # CLI switchboard
 case "${1-}" in
