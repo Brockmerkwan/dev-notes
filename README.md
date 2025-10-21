@@ -74,21 +74,20 @@ This script updates:
 
 ### Daily: Log Sentinel
 ```
-[2025-10-19 18:00:00] done
-[2025-10-19 18:05:16] start rotation
-[2025-10-19 18:05:16] start rotation
-[2025-10-19 18:05:16] done
-[2025-10-19 18:05:16] done
-[2025-10-19 19:44:26] start rotation
-[2025-10-19 19:44:26] start rotation
 [2025-10-19 19:44:26] done
 [2025-10-19 19:44:26] done
 [2025-10-20 12:48:56] start rotation
+[2025-10-20 12:48:57] start rotation
+[2025-10-20 12:48:59] done
+[2025-10-20 12:48:59] done
+[2025-10-20 18:00:00] start rotation
+[2025-10-20 18:00:00] start rotation
+[2025-10-20 18:00:00] done
+[2025-10-20 18:00:00] done
 ```
 
 ### Weekly: Downloads Tidy
 ```
-[2025-10-19 15:47:14] == tidy_weekly done ==
 [2025-10-19 15:56:44] == tidy_weekly start ==
 [2025-10-19 15:56:44] == tidy_weekly done ==
 [2025-10-19 15:59:56] == tidy_weekly start ==
@@ -98,9 +97,49 @@ This script updates:
 [2025-10-19 16:19:52] == tidy_weekly start ==
 [2025-10-19 16:19:52] == tidy_weekly done ==
 [2025-10-20 12:48:56] == tidy_weekly start ==
+[2025-10-20 12:48:57] == tidy_weekly done ==
 ```
 
 ### Quick checks
 ```bash
 launchctl list | egrep \"logsentinel.daily|downloads.tidy.weekly|archive.compactor.monthly|maintenance.overview.daily\"
 ```
+## Maintenance Snapshot — 2025-10-20 19:10:03 CDT
+
+### LaunchAgents
+-	0	com.brock.maintenance.overview.daily
+-	0	com.brock.logsentinel.daily
+-	0	com.brock.archive.compactor.monthly
+-	0	com.brock.downloads.tidy.weekly
+
+### Recent Logs
+**daily_rotate.log**
+```
+[2025-10-19 19:44:26] done
+[2025-10-19 19:44:26] done
+[2025-10-20 12:48:56] start rotation
+[2025-10-20 12:48:57] start rotation
+[2025-10-20 12:48:59] done
+[2025-10-20 12:48:59] done
+[2025-10-20 18:00:00] start rotation
+[2025-10-20 18:00:00] start rotation
+[2025-10-20 18:00:00] done
+[2025-10-20 18:00:00] done
+```
+**_tidy_weekly.log**
+```
+[2025-10-19 15:56:44] == tidy_weekly start ==
+[2025-10-19 15:56:44] == tidy_weekly done ==
+[2025-10-19 15:59:56] == tidy_weekly start ==
+[2025-10-19 15:59:56] == tidy_weekly done ==
+[2025-10-19 16:00:06] == tidy_weekly start ==
+[2025-10-19 16:00:06] == tidy_weekly done ==
+[2025-10-19 16:19:52] == tidy_weekly start ==
+[2025-10-19 16:19:52] == tidy_weekly done ==
+[2025-10-20 12:48:56] == tidy_weekly start ==
+[2025-10-20 12:48:57] == tidy_weekly done ==
+```
+**_compactor_stdout.log**
+```
+```
+
