@@ -181,7 +181,6 @@ case "${1-}" in
     ;;
   *) usage ;;
 esac
-esac  # fixed placement
   --tidy-now) downloads_tidy_now ;;
   --install-tidy) install_tidy_launchagent ;;
   "" ) menu ;;
