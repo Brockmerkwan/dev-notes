@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 set +H  # disable history expansion for Zsh
-# --- Safety Header: Bash Compatibility Check ---
   echo "⚠️  Incompatible shell or old Bash detected."
   echo "   → Use ./core.sh instead of bash core.sh for full compatibility."
   exit 1
 fi
 if [ "$(ps -p $$ -o comm=)" != "bash" ]; then
 fi
-# --- End Safety Header ---
 # Brock Core OS — main menu
 set -euo pipefail
 
@@ -204,4 +202,5 @@ case "${1-}" in
 esac
 
 
+set +H  # disable history expansion for zsh
 set +H  # disable history expansion for zsh
