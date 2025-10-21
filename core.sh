@@ -172,9 +172,15 @@ case "${1-}" in
   --sync) devnotes_sync ;;
   --prompt) open_prompt_path ;;
   --ollama-build) ollama_build_model ;;
+  --tidy-now) downloads_tidy_now ;;
+  --install-tidy) install_tidy_launchagent ;;
+  "") menu ;;
+  --cloudsync)
+    echo "🌩️ Running Cloud Sync Verification..."
+    bash tools/phase_2.5_cloudsync.sh
+    ;;
   *) usage ;;
-esac  # fixed placement
-  *) usage ;;
+esac
 esac  # fixed placement
   --tidy-now) downloads_tidy_now ;;
   --install-tidy) install_tidy_launchagent ;;
