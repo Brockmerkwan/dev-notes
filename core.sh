@@ -1,3 +1,11 @@
+brock_log() {
+  local msg="$*"
+  echo "[$(date +%H:%M:%S)] $msg"
+}
+log_msg() {
+  local msg="$*"
+  echo "[$(date +%H:%M:%S)] $msg"
+}
 #!/usr/bin/env zsh
 set -euo pipefail
 # --- Core Boot Header (rebuilt) ---
@@ -10,7 +18,7 @@ function stop_progress() {
 start_progress "Core Boot"
 # -----------------------------------
 require(){
-  command -v "$1" >/dev/null 2>&1 || { log "ERR: missing dep: $1"; return 1; }
+  command -v "$1" >/dev/null 2>&1 || { brock_log "ERR: missing dep: $1"; return 1; }
 }
 
 PROJECT_DIR="${HOME}/Projects/devnotes"
@@ -20,7 +28,7 @@ MODEFILE="${OLLAMA_DIR}/Modelfile"
 
 health_check(){
   start_progress "Health Check"
-  log "== Health Check =="
+  brock_log "== Health Check =="
   echo "• OS: $(sw_vers -productVersion 2>/dev/null || uname -a)"
   echo "• Shell: $SHELL"
   echo "• Disk (/): $(df -h / | awk 'NR==2{print $4" free"}')"
@@ -34,13 +42,13 @@ health_check(){
   else
     echo "• ollama: not installed"
   fi
-  log "OK health_check done"
+  brock_log "OK health_check done"
   stop_progress "Health Check"
 }
 
 devnotes_sync(){
   start_progress "DevNotes Sync"
-  log "== DevNotes Sync =="
+  brock_log "== DevNotes Sync =="
   require git || return 1
   cd "$PROJECT_DIR"
   git fetch --all --prune
@@ -50,27 +58,27 @@ devnotes_sync(){
     git add -A
     git commit -m "chore(sync): DevNotes auto-sync via core.sh"
     git push
-    log "Pushed changes"
+    brock_log "Pushed changes"
   else
-    log "No changes to push"
+    brock_log "No changes to push"
   fi
   stop_progress "DevNotes Sync"
 }
 
 open_prompt_path(){
-  log "== System Prompt Path =="
+  brock_log "== System Prompt Path =="
   if [[ -s "$PROMPT_FILE" ]]; then
     echo "$PROMPT_FILE"
     # macOS: reveal in Finder (non-fatal if unavailable)
     (open -R "$PROMPT_FILE" 2>/dev/null || true)
   else
-    log "WARN: prompt file missing: $PROMPT_FILE"
+    brock_log "WARN: prompt file missing: $PROMPT_FILE"
   fi
 }
 
 ollama_build_model(){
   start_progress "Ollama Build"
-  log "== Build Ollama model: brock-core:latest =="
+  brock_log "== Build Ollama model: brock-core:latest =="
   require ollama || return 1
   mkdir -p "$OLLAMA_DIR"
   if [[ ! -s "$MODEFILE" ]]; then
@@ -82,30 +90,30 @@ Paste the compact v3 prompt here if you want a self-contained Modelfile.
 """
 PARAMETER temperature 0.4
 EOM
-    log "Created Modelfile scaffold at $MODEFILE"
+    brock_log "Created Modelfile scaffold at $MODEFILE"
   fi
   ollama create brock-core:latest -f "$MODEFILE"
   echo "Test:"
   ollama run brock-core:latest "Say READY if system prompt is active."
-  log "OK ollama build"
+  brock_log "OK ollama build"
   stop_progress "Ollama Build"
 }
 
 downloads_tidy_now(){
   start_progress "Downloads Tidy"
-  log "== Downloads Tidy Now =="
+  brock_log "== Downloads Tidy Now =="
   SRC="${HOME}/Downloads"
   DST="${HOME}/Archive/Downloads/$(date +%Y-%m)"
   mkdir -p "$DST"
   # move non-hidden files older than 2 days; skip .dmg currently in use
   find "$SRC" -maxdepth 1 -type f -mtime +2 -not -name ".*" -print -exec mv -n "{}" "$DST"/ \;
-  log "Moved old files to $DST"
+  brock_log "Moved old files to $DST"
   stop_progress "Downloads Tidy"
 }
 
 install_tidy_launchagent(){
   start_progress "Install LaunchAgent"
-  log "== Install LaunchAgent: weekly downloads tidy =="
+  brock_log "== Install LaunchAgent: weekly downloads tidy =="
   PL="$HOME/Library/LaunchAgents/com.brock.downloads_tidy.plist"
   mkdir -p "$(dirname "$PL")"
   cat > "$PL" <<'PLIST'
@@ -135,7 +143,7 @@ install_tidy_launchagent(){
 PLIST
   launchctl unload "$PL" 2>/dev/null || true
   launchctl load "$PL"
-  launchctl list | grep -q com.brock.downloads_tidy && log "Agent loaded" || log "WARN: Agent not listed"
+  launchctl list | grep -q com.brock.downloads_tidy && brock_log "Agent loaded" || brock_log "WARN: Agent not listed"
   stop_progress "Install LaunchAgent"
 }
 
