@@ -2,3 +2,8 @@
 .DS_Store
 *.tmp
 backups/
+__pycache__/
+*.pyc
+
+# runtime logs
+backups/*.log
