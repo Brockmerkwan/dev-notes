@@ -1,7 +1,3 @@
-source "/Users/brockmerkwan/Projects/devnotes/tools/ux_spinner.sh"
-
-start_spinner "Running daily_rotate.sh"
-
 #!/bin/zsh
 # daily_rotate.sh — non-interactive daily rotation for Brock
 # Calls the simple log_sentinel.sh (not the visual menu) with preset paths.
@@ -37,5 +33,3 @@ fi
 "${SIMPLE}" rotate --path "${DAILY}" --pattern '*.md' --keep 7 --outdir "${OUTDIR}" --prefix daily --compress gz >> "${LOGFILE}" 2>&1
 
 echo "[$(ts)] done" >> "${LOGFILE}"
-
-stop_spinner "daily_rotate.sh complete"
