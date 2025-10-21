@@ -170,6 +170,10 @@ menu(){
     echo "🌩️ Running Cloud Sync Verification..."
     bash tools/phase_2.5_cloudsync.sh
     ;;
+  --cloudsync)
+    echo "🌩️ Running Cloud Sync Verification..."
+    bash tools/phase_2.5_cloudsync.sh
+    ;;
     esac
   done
 }
