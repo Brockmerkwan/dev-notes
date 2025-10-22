@@ -16,3 +16,4 @@
 
 | Date | Tag | Summary |
 |:------|:----|:--------|
+- [Token Guide](docs/token_notes.md)
