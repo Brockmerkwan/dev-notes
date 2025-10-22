@@ -1,0 +1,6 @@
+FROM mistral:latest
+SYSTEM """
+(See ~/Projects/devnotes/system_prompts/brock_core_os_v3.md)
+Paste the compact v3 prompt here if you want a self-contained Modelfile.
+"""
+PARAMETER temperature 0.4
