@@ -1,0 +1,11 @@
+{
+  "name": "B4D-Qel’ith",
+  "title": "The Cold Scribe",
+  "role": "Analyst / Archivist",
+  "language_mode": "bilingual",
+  "phrases": ["Nash'kaar", "Korr'nath", "Rist'kar"],
+  "core_values": ["Knowledge is power", "Order through logic"],
+  "speaking_style": "precise, archival, formal",
+  "tone": "mechanical, ancient, detached",
+  "alignment": "Sith Order – chronicler of forbidden data"
+}
