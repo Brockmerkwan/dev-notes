@@ -1,0 +1,43 @@
+=== 🧩 Network Setup Start: Sun Oct 26 17:18:18 CDT 2025 ===
+[*] Detecting network interfaces...
+lo0:
+gif0:
+stf0:
+anpi0:
+anpi1:
+anpi3:
+en0:
+en5:
+en6:
+en7:
+en2:
+en3:
+en4:
+bridge0:
+ap1:
+en1:
+utun0:
+awdl0:
+llw0:
+utun1:
+utun2:
+utun3:
+utun5:
+utun6:
+vmenet0:
+bridge100:
+vmenet1:
+bridge101:
+[*] Active IP assignments:
+LAN: 10.0.0.132
+2nd NIC: 10.0.0.98
+[*] Testing gateway + internet reachability...
+PING 1.1.1.1 (1.1.1.1): 56 data bytes
+64 bytes from 1.1.1.1: icmp_seq=0 ttl=56 time=12.283 ms
+64 bytes from 1.1.1.1: icmp_seq=1 ttl=56 time=14.136 ms
+
+--- 1.1.1.1 ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 12.283/13.209/14.136/0.927 ms
+[*] iperf3 installed — run 'iperf3 -s' on one Mac Mini and 'iperf3 -c <ip>' on the other to test speeds.
+[*] Committing network log to devnotes repo...
