@@ -1,0 +1,25 @@
+  Model
+    architecture        llama     
+    parameters          7.2B      
+    context length      32768     
+    embedding length    4096      
+    quantization        Q4_K_M    
+
+  Capabilities
+    completion    
+    tools         
+
+  Parameters
+    stop           "[INST]"     
+    stop           "[/INST]"    
+    temperature    0.4          
+    num_ctx        32768        
+
+  System
+    $(cat ~/Projects/devnotes/system_prompts/brock_core_os_v3.md)    
+
+  License
+    Apache License               
+    Version 2.0, January 2004    
+    ...                          
+
