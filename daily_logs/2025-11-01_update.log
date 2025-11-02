@@ -1,0 +1,99 @@
+=== UPDATE RUN Sat Nov  1 23:51:20 CDT 2025 ===
+Repo: /Users/brockmerkwan/Projects/devnotes
+
+→ git status (before)
+## main...origin/main
+ D Cybersecurity_DevOps_Milestone_Brock.pdf
+ D Dev_Notes_Repo_Guide_Brock.pdf
+ D Git_CheatSheet_Brock.pdf
+ D Lesson_Record_GitHub_Setup_Brock.pdf
+ D Level_2_Applied_Automation_Brock.pdf
+ D Local_Buddy_Roadmap_Brock.pdf
+ D Next_Steps_DiscordBot_RunPod.pdf
+ D Repo_Launch_Audit_Sheet_Brock.pdf
+ D SCHEDULER_README.txt
+ D Tailscale_RunPod_Workflow_Brock.pdf
+ D core.sh.bak.2025-10-21_15-11-47
+ D core.sh.bak.2025-10-21_15-13-07
+ D core.sh.bak.2025-10-21_15-13-52
+ D core.sh.bak.2025-10-21_15-15-36
+ D core.sh.bak.2025-10-21_15-19-47
+ D core.sh.bak.2025-10-21_15-20-09
+ D core.sh.bak.2025-10-21_15-21-13
+ D core.sh.bak.2025-10-21_15-22-41
+ D core.sh.bak.2025-10-21_15-23-31
+ D core.sh.bak.2025-10-21_15-27-04
+ D core.sh.bak.2025-10-21_15-30-37
+ D core.sh.bak.2025-10-21_16-14-41
+ D core.sh.bak.2025-10-21_16-54-21
+ D core.sh.bak.2025-10-21_16-57-13
+ D core.sh.bak.2025-10-21_16-58-10
+ D core.sh.bak.2025-10-21_16-59-28
+ D core.sh.bak.2025-10-21_17-01-07
+ D core.sh.bak.2025-10-21_17-02-18
+ D core.sh.bak.2025-10-21_17-03-09
+ D core.sh.bak.2025-10-21_17-09-22
+ D core.sh.bak.2025-10-21_17-12-22
+ D core.sh.bak.2025-10-21_17-13-56
+ D tools/.DS_Store
+ D tools/aiwatcher.sh
+ D tools/aiwatcher.sh.tmp
+ D tools/aiwatcherctl.sh
+ D tools/b4d_chat_bridge.sh
+ D tools/brock_launch_nuke.sh
+ D tools/brock_launch_nuke_v2.sh
+ D tools/chat-core.sh
+ D tools/core.sh
+ D tools/core_dash.sh
+ D tools/core_dash_web.py
+ D tools/core_orchestrator.sh
+ D tools/core_pave.sh
+ D tools/core_suite_install.sh
+ D tools/core_suite_phase2.sh
+ D tools/core_web.sh
+ D tools/error_triage.sh
+ D tools/example.sh
+ D tools/fix_core_entrypoint.sh
+ D tools/fix_core_final.sh
+ D tools/fix_core_final2.sh
+ D tools/fix_core_header.sh
+ D tools/fix_health_log.sh
+ D tools/fix_logger_collision.sh
+ D tools/fix_readme_codeblock.sh
+ D tools/fix_readme_footer.sh
+ D tools/fix_readme_once.sh
+ D tools/git_loop.sh
+ D tools/git_sync.sh
+ D tools/health_scan.sh
+ D tools/include_path_guard.sh
+ D tools/launch_enforce_allowlist.sh
+ D tools/log_rotate.sh
+ D tools/meta_tool_commit.sh
+ D tools/patch_logger.sh
+ D tools/patch_progress_fix.sh
+ D tools/patch_progress_integration.sh
+ D tools/patch_progress_v3.sh
+ D tools/patch_spinner_integration.sh
+ D tools/phase_2.5_cloudsync.sh
+ D tools/readme_cleanup.sh
+ D tools/readme_cleanup_final.sh
+ D tools/readme_cleanup_placeholder.sh
+ D tools/readme_final_fix.sh
+ D tools/readme_repair.sh
+ D tools/readme_repair_final.sh
+ D tools/scan_log_calls.sh
+ D tools/setup_path_guard.sh
+ D tools/svc_sanitize.sh
+ D tools/test.mp3
+ D tools/update_readme.sh
+ D tools/update_readme_core.sh
+ D tools/ux_progress.sh
+ D tools/ux_spinner.sh
+?? archive_misc/
+?? daily_logs/2025-11-01_update.log
+?? tools/archive/
+
+→ git pull
+Already up to date.
+
+→ staging changes
