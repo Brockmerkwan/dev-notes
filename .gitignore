@@ -1,11 +1,31 @@
-# (paste above content)
+# --- macOS ---
 .DS_Store
-*.tmp
-backups/
+
+# --- Python ---
 __pycache__/
 *.pyc
+*.pyo
+venv/
+.venv/
+env/
 
-# runtime logs
-backups/*.log
-README.bak.*
-.DS_Store
+# --- Virtualenv / site-packages bloat ---
+**/site-packages/
+**/lib/python*/
+
+# --- Runtime logs & data ---
+*.log
+*.tmp
+logs/
+net/*.log
+
+# --- Backups & archives ---
+backups/
+*.bak.*
+*.tar.gz
+
+# --- Secrets ---
+.env
+.env.*
+*.pem
+*.key
