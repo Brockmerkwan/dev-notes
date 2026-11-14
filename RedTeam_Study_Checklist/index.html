@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Red-Team Study Checklist (High-Level, Non-Actionable) - Dev Notes</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Dev Notes</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Brockmerkwan/dev-notes/edit/master/docs/RedTeam_Study_Checklist.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#red-team-study-checklist-high-level-non-actionable" class="nav-link">Red-Team Study Checklist (High-Level, Non-Actionable)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#ethics-safe-practice" class="nav-link">Ethics &amp; Safe Practice</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#topics-learning-order" class="nav-link">Topics (learning order)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#defensive-mapping-how-offensive-techniques-map-to-detections" class="nav-link">Defensive Mapping (how offensive techniques map to detections)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#labs-practice-legal" class="nav-link">Labs &amp; Practice (legal)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#learning-resources" class="nav-link">Learning Resources</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#ethics-reminder" class="nav-link">Ethics Reminder</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="red-team-study-checklist-high-level-non-actionable">Red-Team Study Checklist (High-Level, Non-Actionable)</h1>
+<p><strong>Purpose:</strong> learning roadmap for understanding attacker techniques and defensive countermeasures — <em>no exploit code included</em>.</p>
+<h2 id="ethics-safe-practice">Ethics &amp; Safe Practice</h2>
+<ul>
+<li>Only test systems you own or have explicit permission to test.</li>
+<li>Use isolated labs (VM snapshots) and follow platform rules (TryHackMe, Hack The Box).</li>
+<li>Keep detailed logs and legal consent for any engagement.</li>
+</ul>
+<h2 id="topics-learning-order">Topics (learning order)</h2>
+<ol>
+<li><strong>Foundations</strong>: TCP/IP, routing, Linux/macOS internals, Windows basics</li>
+<li><strong>Enumeration</strong>: service discovery, port scanning, banner analysis (theory + detection)</li>
+<li><strong>Vulnerabilities 101</strong>: CVE lifecycle, patching, and common vulnerability classes (RCE, XSS, CSRF)</li>
+<li><strong>Privilege Escalation (theory)</strong>: SUID/SGID, sudo misconfigurations, credential/credential stores — learn <em>defenses</em>, not exploit steps</li>
+<li><strong>Persistence &amp; Evasion (theory)</strong>: cron jobs, startup agents, anomalous services — detection + mitigation</li>
+<li><strong>Lateral Movement (theory)</strong>: authentication delegation, SSH keys, network segmentation — focus on hardening</li>
+<li><strong>Logging &amp; Monitoring</strong>: SIEM basics, log collection, alert tuning, EDR concepts</li>
+<li><strong>Forensics Basics</strong>: file timeline analysis, memory capture theory, evidence preservation</li>
+<li><strong>Red-Team Tools (study list)</strong>: LinPEAS (read-only study), BloodHound (graph theory), Adversary Emulation frameworks — read docs &amp; defensive mappings</li>
+<li><strong>Cobalt Strike / Emulation (theory only)</strong>: understand concepts, do not use unauthorized tools</li>
+</ol>
+<h2 id="defensive-mapping-how-offensive-techniques-map-to-detections">Defensive Mapping (how offensive techniques map to detections)</h2>
+<ul>
+<li><strong>Port Scans / Recon</strong> → Detection: high-rate SYN/connection attempts, IDS/IPS alerts, rare source IPs</li>
+<li><strong>SUID Abuse</strong> → Detection: new/changed SUID binaries, unexpected owner changes, file integrity hashes</li>
+<li><strong>Cron / Startup Persistence</strong> → Detection: new crontab entries, unknown launch agents, timestamp anomalies</li>
+<li><strong>Lateral Movement (SSH keys)</strong> → Detection: new authorized_keys, unusual SSH logins, key fingerprints changes</li>
+<li><strong>Credential Theft</strong> → Detection: abnormal access to secret stores, high-volume file reads, new processes accessing /etc/shadow or keyring locations</li>
+<li><strong>Malicious Containers</strong> → Detection: unknown container images, outbound connections from containers, new container runtimes</li>
+</ul>
+<h2 id="labs-practice-legal">Labs &amp; Practice (legal)</h2>
+<ul>
+<li>TryHackMe: structured rooms for beginners→intermediate</li>
+<li>Hack The Box: realistic labs (use safe lab subnets)</li>
+<li>Metasploitable / Vuln VM images: isolated in local VM networks with snapshots</li>
+<li>Build a lab: Controller machine + target VMs + a snapshot policy before tests</li>
+</ul>
+<h2 id="learning-resources">Learning Resources</h2>
+<ul>
+<li>“The Practice of Network Security Monitoring” — practical monitoring tactics</li>
+<li>Linux hardening guides (CIS Benchmarks)</li>
+<li>Vendor docs: Microsoft, Apple, major Linux distros for secure defaults</li>
+<li>Project documentation: LinPEAS, Osquery, Wazuh (for defensive study)</li>
+</ul>
+<h2 id="ethics-reminder">Ethics Reminder</h2>
+<p>Always have permission. Use your skills to defend, not to harm.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

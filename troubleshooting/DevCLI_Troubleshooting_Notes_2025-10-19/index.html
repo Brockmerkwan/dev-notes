@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>DevCLI Troubleshooting Notes — 2025-10-19 - Dev Notes</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">Dev Notes</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Brockmerkwan/dev-notes/edit/master/docs/troubleshooting/DevCLI_Troubleshooting_Notes_2025-10-19.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#devcli-troubleshooting-notes-2025-10-19" class="nav-link">DevCLI Troubleshooting Notes — 2025-10-19</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#session-summary" class="nav-link">Session Summary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#unresolvedobserved-issues" class="nav-link">Unresolved/Observed Issues</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#effective-fixes-applied-today" class="nav-link">Effective Fixes Applied Today</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#known-good-commands" class="nav-link">Known-Good Commands</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#plan-for-tomorrow" class="nav-link">Plan for Tomorrow</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#appendix-paths" class="nav-link">Appendix: Paths</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="devcli-troubleshooting-notes-2025-10-19">DevCLI Troubleshooting Notes — 2025-10-19</h1>
+<h2 id="session-summary">Session Summary</h2>
+<pre><code>• Built/installed Dev CLI (container &amp; host variants).
+• Verified Ollama API reachable (version 0.12.6).
+• Confirmed model replies inside container (warm-up via: echo &quot;hello&quot; | ollama run mistral:latest).
+• Host tools installed: devask_h, devteach_h, devnote_h.
+• Git push verified: docs/ai_sessions/session_*.md created and pushed.
+</code></pre>
+<h2 id="unresolvedobserved-issues">Unresolved/Observed Issues</h2>
+<pre><code>1) Container devask/devteach: sometimes no visible output.
+   - Non-stream body occasionally empty; streaming printer previously too strict.
+
+2) Host tools initial run: no output.
+   - Parser expected only 'message.content'; some builds stream 'response'.
+
+3) Docker healthcheck flakiness.
+   - Resolved by removing healthcheck and probing manually.
+</code></pre>
+<h2 id="effective-fixes-applied-today">Effective Fixes Applied Today</h2>
+<pre><code>A) Compose simplification: removed healthcheck dependency.
+B) Container CLI: prefer streaming; warm model explicitly before use.
+C) Host CLI: robust streaming parser accepts both keys:
+     msg = (d.get(&quot;message&quot;, {}).get(&quot;content&quot;) or d.get(&quot;response&quot;) or &quot;&quot;)
+D) Repo flow: devnote_h saves markdown and auto-commits/pushes.
+</code></pre>
+<h2 id="known-good-commands">Known-Good Commands</h2>
+<pre><code># Prove API
+curl -s http://localhost:11434/api/version &amp;&amp; echo
+
+# Warm model in container
+docker compose exec -T ollama sh -lc 'echo &quot;hello&quot; | ollama run mistral:latest'
+
+# Host tools (streaming; guaranteed visible output)
+export OLLAMA_MODEL=mistral:latest
+devask_h   &quot;Say one short sentence.&quot;
+devteach_h &quot;Explain POSIX log rotation in 3 steps.&quot;
+DEVREPO=&quot;$HOME/Projects/devnotes&quot; devnote_h &quot;Summarize today’s setup in 5 bullets.&quot;
+
+# Raw streaming probe
+printf '%s' '{&quot;model&quot;:&quot;mistral:latest&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;say hi&quot;}],&quot;stream&quot;:true}' | curl -sN http://localhost:11434/api/chat -H 'Content-Type: application/json'
+</code></pre>
+<h2 id="plan-for-tomorrow">Plan for Tomorrow</h2>
+<pre><code>1) Port host-side dual-key streaming parser to container devask/devteach.
+2) Optional: add _wait_ollama readiness helper (up to 60s retry).
+3) Unify tools: single command with persona flag, e.g. devask_h --teacher &quot;…&quot;.
+4) Add smoke-test script to validate API, stream, and repo write.
+5) Keep default model lightweight (mistral:latest or qwen2.5:3b-instruct).
+</code></pre>
+<h2 id="appendix-paths">Appendix: Paths</h2>
+<pre><code>• Repo:  ~/Projects/devnotes
+• AI sessions:  docs/ai_sessions/session_*.md
+• Host tools:  /usr/local/bin/devask_h, devteach_h, devnote_h
+• Persona:  ~/.devnotesctl/Operator_Teacher.txt
+• Docker project:  ~/devnotes-docker
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
